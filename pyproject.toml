@@ -1,5 +1,5 @@
 [project]
-name = "spatialise_soil_prediction"
+name = "spatialise"
 version = "0.0.1-alpha.0"
 description = "The official Python library for the spatialise-soil-prediction API"
 dynamic = ["readme"]

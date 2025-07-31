@@ -1,7 +1,7 @@
 # Spatialise Soil Prediction Python API library
 
 <!-- prettier-ignore -->
-[![PyPI version](https://img.shields.io/pypi/v/spatialise_soil_prediction.svg?label=pypi%20(stable))](https://pypi.org/project/spatialise_soil_prediction/)
+[![PyPI version](https://img.shields.io/pypi/v/spatialise.svg?label=pypi%20(stable))](https://pypi.org/project/spatialise/)
 
 The Spatialise Soil Prediction Python library provides convenient access to the Spatialise Soil Prediction REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
@@ -17,7 +17,7 @@ The full API of this library can be found in [api.md](api.md).
 
 ```sh
 # install from PyPI
-pip install --pre spatialise_soil_prediction
+pip install --pre spatialise
 ```
 
 ## Usage
@@ -75,7 +75,7 @@ You can enable this by installing `aiohttp`:
 
 ```sh
 # install from PyPI
-pip install --pre spatialise_soil_prediction[aiohttp]
+pip install --pre spatialise[aiohttp]
 ```
 
 Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:

@@ -10,15 +10,15 @@ import httpx
 import pytest
 from pytest_asyncio import is_async_test
 
-from spatialise_soil_prediction import DefaultAioHttpClient, SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
-from spatialise_soil_prediction._utils import is_dict
+from spatialise import DefaultAioHttpClient, SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
+from spatialise._utils import is_dict
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest  # pyright: ignore[reportPrivateImportUsage]
 
 pytest.register_assert_rewrite("tests.utils")
 
-logging.getLogger("spatialise_soil_prediction").setLevel(logging.DEBUG)
+logging.getLogger("spatialise").setLevel(logging.DEBUG)
 
 
 # automatically add `pytest.mark.asyncio()` to all of our async tests

@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
+from spatialise import SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
 from tests.utils import assert_matches_type
-from spatialise_soil_prediction import SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
-from spatialise_soil_prediction.types import (
+from spatialise.types import (
     BatchCreateResponse,
     BatchRetrieveStatusResponse,
 )

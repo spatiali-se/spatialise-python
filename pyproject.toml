@@ -79,14 +79,14 @@ format = { chain = [
 "check:ruff" = "ruff check ."
 "fix:ruff" = "ruff check --fix ."
 
-"check:importable" = "python -c 'import spatialise_soil_prediction'"
+"check:importable" = "python -c 'import spatialise'"
 
 typecheck = { chain = [
   "typecheck:pyright",
   "typecheck:mypy"
 ]}
 "typecheck:pyright" = "pyright"
-"typecheck:verify-types" = "pyright --verifytypes spatialise_soil_prediction --ignoreexternal"
+"typecheck:verify-types" = "pyright --verifytypes spatialise --ignoreexternal"
 "typecheck:mypy" = "mypy ."
 
 [build-system]
@@ -99,7 +99,7 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/spatialise_soil_prediction"]
+packages = ["src/spatialise"]
 
 [tool.hatch.build.targets.sdist]
 # Basically everything except hidden files/directories (such as .github, .devcontainers, .python-version, etc)
@@ -202,7 +202,7 @@ length-sort = true
 length-sort-straight = true
 combine-as-imports = true
 extra-standard-library = ["typing_extensions"]
-known-first-party = ["spatialise_soil_prediction", "tests"]
+known-first-party = ["spatialise", "tests"]
 
 [tool.ruff.lint.per-file-ignores]
 "bin/**.py" = ["T201", "T203"]

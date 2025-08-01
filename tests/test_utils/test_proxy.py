@@ -2,7 +2,7 @@ import operator
 from typing import Any
 from typing_extensions import override
 
-from spatialise_soil_prediction._utils import LazyProxy
+from spatialise._utils import LazyProxy
 
 
 class RecursiveLazyProxy(LazyProxy[Any]):

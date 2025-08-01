@@ -8,15 +8,15 @@ from typing_extensions import Required, Annotated, TypedDict
 
 import pytest
 
-from spatialise_soil_prediction._types import NOT_GIVEN, Base64FileInput
-from spatialise_soil_prediction._utils import (
+from spatialise._types import NOT_GIVEN, Base64FileInput
+from spatialise._utils import (
     PropertyInfo,
     transform as _transform,
     parse_datetime,
     async_transform as _async_transform,
 )
-from spatialise_soil_prediction._compat import PYDANTIC_V2
-from spatialise_soil_prediction._models import BaseModel
+from spatialise._compat import PYDANTIC_V2
+from spatialise._models import BaseModel
 
 _T = TypeVar("_T")
 

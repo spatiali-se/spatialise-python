@@ -5,8 +5,8 @@ from typing import Iterator, AsyncIterator
 import httpx
 import pytest
 
-from spatialise_soil_prediction import SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
-from spatialise_soil_prediction._streaming import Stream, AsyncStream, ServerSentEvent
+from spatialise import SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
+from spatialise._streaming import Stream, AsyncStream, ServerSentEvent
 
 
 @pytest.mark.asyncio

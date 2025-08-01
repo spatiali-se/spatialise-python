@@ -7,9 +7,9 @@ import pytest
 import pydantic
 from pydantic import Field
 
-from spatialise_soil_prediction._utils import PropertyInfo
-from spatialise_soil_prediction._compat import PYDANTIC_V2, parse_obj, model_dump, model_json
-from spatialise_soil_prediction._models import BaseModel, construct_type
+from spatialise._utils import PropertyInfo
+from spatialise._compat import PYDANTIC_V2, parse_obj, model_dump, model_json
+from spatialise._models import BaseModel, construct_type
 
 
 class BasicModel(BaseModel):

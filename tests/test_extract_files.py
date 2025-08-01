@@ -4,8 +4,8 @@ from typing import Sequence
 
 import pytest
 
-from spatialise_soil_prediction._types import FileTypes
-from spatialise_soil_prediction._utils import extract_files
+from spatialise._types import FileTypes
+from spatialise._utils import extract_files
 
 
 def test_removes_files_from_input() -> None:

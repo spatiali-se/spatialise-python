@@ -8,8 +8,8 @@ from typing import Any, TypeVar, Iterator, cast
 from datetime import date, datetime
 from typing_extensions import Literal, get_args, get_origin, assert_type
 
-from spatialise_soil_prediction._types import Omit, NoneType
-from spatialise_soil_prediction._utils import (
+from spatialise._types import Omit, NoneType
+from spatialise._utils import (
     is_dict,
     is_list,
     is_list_type,
@@ -18,8 +18,8 @@ from spatialise_soil_prediction._utils import (
     is_annotated_type,
     is_type_alias_type,
 )
-from spatialise_soil_prediction._compat import PYDANTIC_V2, field_outer_type, get_model_fields
-from spatialise_soil_prediction._models import BaseModel
+from spatialise._compat import PYDANTIC_V2, field_outer_type, get_model_fields
+from spatialise._models import BaseModel
 
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 

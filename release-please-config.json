@@ -61,6 +61,6 @@
   ],
   "release-type": "python",
   "extra-files": [
-    "src/spatialise_soil_prediction/_version.py"
+    "src/spatialise/_version.py"
   ]
 }

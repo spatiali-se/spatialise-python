@@ -26,7 +26,7 @@ The full API of this library can be found in [api.md](api.md).
 
 ```python
 import os
-from spatialise_soil_prediction import SpatialiseSoilPrediction
+from spatialise import SpatialiseSoilPrediction
 
 client = SpatialiseSoilPrediction(
     api_key=os.environ.get(
@@ -49,7 +49,7 @@ Simply import `AsyncSpatialiseSoilPrediction` instead of `SpatialiseSoilPredicti
 ```python
 import os
 import asyncio
-from spatialise_soil_prediction import AsyncSpatialiseSoilPrediction
+from spatialise import AsyncSpatialiseSoilPrediction
 
 client = AsyncSpatialiseSoilPrediction(
     api_key=os.environ.get(
@@ -82,8 +82,8 @@ Then you can enable it by instantiating the client with `http_client=DefaultAioH
 
 ```python
 import asyncio
-from spatialise_soil_prediction import DefaultAioHttpClient
-from spatialise_soil_prediction import AsyncSpatialiseSoilPrediction
+from spatialise import DefaultAioHttpClient
+from spatialise import AsyncSpatialiseSoilPrediction
 
 
 async def main() -> None:
@@ -108,27 +108,27 @@ Typed requests and responses provide autocomplete and documentation within your 
 
 ## Handling errors
 
-When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `spatialise_soil_prediction.APIConnectionError` is raised.
+When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `spatialise.APIConnectionError` is raised.
 
 When the API returns a non-success status code (that is, 4xx or 5xx
-response), a subclass of `spatialise_soil_prediction.APIStatusError` is raised, containing `status_code` and `response` properties.
+response), a subclass of `spatialise.APIStatusError` is raised, containing `status_code` and `response` properties.
 
-All errors inherit from `spatialise_soil_prediction.APIError`.
+All errors inherit from `spatialise.APIError`.
 
 ```python
-import spatialise_soil_prediction
-from spatialise_soil_prediction import SpatialiseSoilPrediction
+import spatialise
+from spatialise import SpatialiseSoilPrediction
 
 client = SpatialiseSoilPrediction()
 
 try:
     client.health.check()
-except spatialise_soil_prediction.APIConnectionError as e:
+except spatialise.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
-except spatialise_soil_prediction.RateLimitError as e:
+except spatialise.RateLimitError as e:
     print("A 429 status code was received; we should back off a bit.")
-except spatialise_soil_prediction.APIStatusError as e:
+except spatialise.APIStatusError as e:
     print("Another non-200-range status code was received")
     print(e.status_code)
     print(e.response)
@@ -156,7 +156,7 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 You can use the `max_retries` option to configure or disable retry settings:
 
 ```python
-from spatialise_soil_prediction import SpatialiseSoilPrediction
+from spatialise import SpatialiseSoilPrediction
 
 # Configure the default for all requests:
 client = SpatialiseSoilPrediction(
@@ -174,7 +174,7 @@ By default requests time out after 1 minute. You can configure this with a `time
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration) object:
 
 ```python
-from spatialise_soil_prediction import SpatialiseSoilPrediction
+from spatialise import SpatialiseSoilPrediction
 
 # Configure the default for all requests:
 client = SpatialiseSoilPrediction(
@@ -226,7 +226,7 @@ if response.my_field is None:
 The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
 
 ```py
-from spatialise_soil_prediction import SpatialiseSoilPrediction
+from spatialise import SpatialiseSoilPrediction
 
 client = SpatialiseSoilPrediction()
 response = client.health.with_raw_response.check()
@@ -236,9 +236,9 @@ health = response.parse()  # get the object that `health.check()` would have ret
 print(health)
 ```
 
-These methods return an [`APIResponse`](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise_soil_prediction/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise_soil_prediction/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -300,7 +300,7 @@ You can directly override the [httpx client](https://www.python-httpx.org/api/#c
 
 ```python
 import httpx
-from spatialise_soil_prediction import SpatialiseSoilPrediction, DefaultHttpxClient
+from spatialise import SpatialiseSoilPrediction, DefaultHttpxClient
 
 client = SpatialiseSoilPrediction(
     # Or use the `SPATIALISE_SOIL_PREDICTION_BASE_URL` env var
@@ -323,7 +323,7 @@ client.with_options(http_client=DefaultHttpxClient(...))
 By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ```py
-from spatialise_soil_prediction import SpatialiseSoilPrediction
+from spatialise import SpatialiseSoilPrediction
 
 with SpatialiseSoilPrediction() as client:
   # make requests here
@@ -351,8 +351,8 @@ If you've upgraded to the latest version but aren't seeing any new features you 
 You can determine the version that is being used at runtime with:
 
 ```py
-import spatialise_soil_prediction
-print(spatialise_soil_prediction.__version__)
+import spatialise
+print(spatialise.__version__)
 ```
 
 ## Requirements

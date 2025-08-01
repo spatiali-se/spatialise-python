@@ -4,7 +4,7 @@ from urllib.parse import unquote
 
 import pytest
 
-from spatialise_soil_prediction._qs import Querystring, stringify
+from spatialise._qs import Querystring, stringify
 
 
 def test_empty() -> None:

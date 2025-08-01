@@ -6,8 +6,8 @@ import httpx
 import pytest
 import pydantic
 
-from spatialise_soil_prediction import BaseModel, SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
-from spatialise_soil_prediction._response import (
+from spatialise import BaseModel, SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
+from spatialise._response import (
     APIResponse,
     BaseAPIResponse,
     AsyncAPIResponse,
@@ -15,8 +15,8 @@ from spatialise_soil_prediction._response import (
     AsyncBinaryAPIResponse,
     extract_response_type,
 )
-from spatialise_soil_prediction._streaming import Stream
-from spatialise_soil_prediction._base_client import FinalRequestOptions
+from spatialise._streaming import Stream
+from spatialise._base_client import FinalRequestOptions
 
 
 class ConcreteBaseAPIResponse(APIResponse[bytes]): ...
@@ -37,7 +37,7 @@ def test_extract_response_type_direct_classes() -> None:
 def test_extract_response_type_direct_class_missing_type_arg() -> None:
     with pytest.raises(
         RuntimeError,
-        match="Expected type <class 'spatialise_soil_prediction._response.AsyncAPIResponse'> to have a type argument at index 0 but it did not",
+        match="Expected type <class 'spatialise._response.AsyncAPIResponse'> to have a type argument at index 0 but it did not",
     ):
         extract_response_type(AsyncAPIResponse)
 
@@ -68,7 +68,7 @@ def test_response_parse_mismatched_basemodel(client: SpatialiseSoilPrediction) -
 
     with pytest.raises(
         TypeError,
-        match="Pydantic models must subclass our base model type, e.g. `from spatialise_soil_prediction import BaseModel`",
+        match="Pydantic models must subclass our base model type, e.g. `from spatialise import BaseModel`",
     ):
         response.parse(to=PydanticModel)
 
@@ -86,7 +86,7 @@ async def test_async_response_parse_mismatched_basemodel(async_client: AsyncSpat
 
     with pytest.raises(
         TypeError,
-        match="Pydantic models must subclass our base model type, e.g. `from spatialise_soil_prediction import BaseModel`",
+        match="Pydantic models must subclass our base model type, e.g. `from spatialise import BaseModel`",
     ):
         await response.parse(to=PydanticModel)
 

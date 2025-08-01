@@ -29,9 +29,7 @@ import os
 from spatialise import SpatialiseSoilPrediction
 
 client = SpatialiseSoilPrediction(
-    api_key=os.environ.get(
-        "SPATIALISE_SOIL_PREDICTION_API_KEY"
-    ),  # This is the default and can be omitted
+    api_key=os.environ.get("SPATIALISE_API_KEY"),  # This is the default and can be omitted
 )
 
 response = client.health.check()
@@ -39,7 +37,7 @@ response = client.health.check()
 
 While you can provide an `api_key` keyword argument,
 we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
-to add `SPATIALISE_SOIL_PREDICTION_API_KEY="My API Key"` to your `.env` file
+to add `SPATIALISE_API_KEY="My API Key"` to your `.env` file
 so that your API Key is not stored in source control.
 
 ## Async usage
@@ -52,9 +50,7 @@ import asyncio
 from spatialise import AsyncSpatialiseSoilPrediction
 
 client = AsyncSpatialiseSoilPrediction(
-    api_key=os.environ.get(
-        "SPATIALISE_SOIL_PREDICTION_API_KEY"
-    ),  # This is the default and can be omitted
+    api_key=os.environ.get("SPATIALISE_API_KEY"),  # This is the default and can be omitted
 )
 
 

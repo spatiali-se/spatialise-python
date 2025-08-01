@@ -341,7 +341,7 @@ class TestSpatialiseSoilPrediction:
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("Authorization") == f"Bearer {api_key}"
 
-        with update_env(**{"SPATIALISE_SOIL_PREDICTION_API_KEY": Omit()}):
+        with update_env(**{"SPATIALISE_API_KEY": Omit()}):
             client2 = SpatialiseSoilPrediction(base_url=base_url, api_key=None, _strict_response_validation=True)
 
         with pytest.raises(
@@ -1163,7 +1163,7 @@ class TestAsyncSpatialiseSoilPrediction:
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("Authorization") == f"Bearer {api_key}"
 
-        with update_env(**{"SPATIALISE_SOIL_PREDICTION_API_KEY": Omit()}):
+        with update_env(**{"SPATIALISE_API_KEY": Omit()}):
             client2 = AsyncSpatialiseSoilPrediction(base_url=base_url, api_key=None, _strict_response_validation=True)
 
         with pytest.raises(

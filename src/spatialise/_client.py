@@ -86,7 +86,7 @@ class SpatialiseSoilPrediction(SyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("SPATIALISE_SOIL_PREDICTION_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.spatialise.com"
+            base_url = f"https://soilpredict.api.spatialise.dev/"
 
         super().__init__(
             version=__version__,
@@ -265,7 +265,7 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("SPATIALISE_SOIL_PREDICTION_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.spatialise.com"
+            base_url = f"https://soilpredict.api.spatialise.dev/"
 
         super().__init__(
             version=__version__,

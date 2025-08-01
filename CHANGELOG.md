@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0-alpha.2 (2025-08-01)
+
+Full Changelog: [v0.1.0-alpha.1...v0.1.0-alpha.2](https://github.com/spatiali-se/spatialise-python/compare/v0.1.0-alpha.1...v0.1.0-alpha.2)
+
+### Features
+
+* **api:** update via SDK Studio ([1aa4efe](https://github.com/spatiali-se/spatialise-python/commit/1aa4efe966df52cf88da7a7a50c5091d07b07e7e))
+* **api:** update via SDK Studio ([551a5f0](https://github.com/spatiali-se/spatialise-python/commit/551a5f0d8e8fa272de4411d0af771b1eab6bd12c))
+* **api:** update via SDK Studio ([39777b0](https://github.com/spatiali-se/spatialise-python/commit/39777b032f176e2ea67304a14daa853c032344bb))
+
 ## 0.1.0-alpha.1 (2025-08-01)
 
 Full Changelog: [v0.0.1-alpha.0...v0.1.0-alpha.1](https://github.com/spatiali-se/spatialise-python/compare/v0.0.1-alpha.0...v0.1.0-alpha.1)

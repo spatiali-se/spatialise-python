@@ -29,6 +29,9 @@ class Job(BaseModel):
     result_url: Optional[str] = None
     """Temporary signed URL to download result GeoTIFF. Valid for 6 hours."""
 
+    result_url_created_at: Optional[datetime] = None
+    """UTC timestamp when the result URL was generated"""
+
 
 class BatchRetrieveStatusResponse(BaseModel):
     batch_id: str

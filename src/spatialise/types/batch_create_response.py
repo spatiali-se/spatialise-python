@@ -1,5 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+from typing import Dict
 from datetime import datetime
 
 from .._models import BaseModel
@@ -15,8 +16,11 @@ class BatchCreateResponse(BaseModel):
     created_at: datetime
     """Batch creation timestamp"""
 
+    job_ids: Dict[str, str]
+    """Mapping of job indices to job IDs"""
+
     message: str
-    """Human-readable status message"""
+    """Status message"""
 
     status: BatchStatus
     """Current status of the batch"""

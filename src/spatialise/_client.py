@@ -13,7 +13,6 @@ from ._qs import Querystring
 from ._types import (
     NOT_GIVEN,
     Omit,
-    Headers,
     Timeout,
     NotGiven,
     Transport,
@@ -24,7 +23,7 @@ from ._utils import is_given, get_async_library
 from ._version import __version__
 from .resources import batch, health
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError
+from ._exceptions import APIStatusError, SpatialiseSoilPredictionError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
@@ -50,7 +49,7 @@ class SpatialiseSoilPrediction(SyncAPIClient):
     with_streaming_response: SpatialiseSoilPredictionWithStreamedResponse
 
     # client options
-    api_key: str | None
+    api_key: str
 
     def __init__(
         self,
@@ -77,16 +76,20 @@ class SpatialiseSoilPrediction(SyncAPIClient):
     ) -> None:
         """Construct a new synchronous SpatialiseSoilPrediction client instance.
 
-        This automatically infers the `api_key` argument from the `SPATIALISE_SOIL_PREDICTION_API_KEY` environment variable if it is not provided.
+        This automatically infers the `api_key` argument from the `SPATIALISE_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
-            api_key = os.environ.get("SPATIALISE_SOIL_PREDICTION_API_KEY")
+            api_key = os.environ.get("SPATIALISE_API_KEY")
+        if api_key is None:
+            raise SpatialiseSoilPredictionError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the SPATIALISE_API_KEY environment variable"
+            )
         self.api_key = api_key
 
         if base_url is None:
             base_url = os.environ.get("SPATIALISE_SOIL_PREDICTION_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.spatialise.com"
+            base_url = f"https://soilpredict.api.spatialise.dev/"
 
         super().__init__(
             version=__version__,
@@ -98,6 +101,8 @@ class SpatialiseSoilPrediction(SyncAPIClient):
             custom_query=default_query,
             _strict_response_validation=_strict_response_validation,
         )
+
+        self._idempotency_header = "Idempotency-Key"
 
         self.health = health.HealthResource(self)
         self.batch = batch.BatchResource(self)
@@ -113,8 +118,6 @@ class SpatialiseSoilPrediction(SyncAPIClient):
     @override
     def auth_headers(self) -> dict[str, str]:
         api_key = self.api_key
-        if api_key is None:
-            return {}
         return {"Authorization": f"Bearer {api_key}"}
 
     @property
@@ -125,17 +128,6 @@ class SpatialiseSoilPrediction(SyncAPIClient):
             "X-Stainless-Async": "false",
             **self._custom_headers,
         }
-
-    @override
-    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
-        if self.api_key and headers.get("Authorization"):
-            return
-        if isinstance(custom_headers.get("Authorization"), Omit):
-            return
-
-        raise TypeError(
-            '"Could not resolve authentication method. Expected the api_key to be set. Or for the `Authorization` headers to be explicitly omitted"'
-        )
 
     def copy(
         self,
@@ -229,7 +221,7 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
     with_streaming_response: AsyncSpatialiseSoilPredictionWithStreamedResponse
 
     # client options
-    api_key: str | None
+    api_key: str
 
     def __init__(
         self,
@@ -256,16 +248,20 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
     ) -> None:
         """Construct a new async AsyncSpatialiseSoilPrediction client instance.
 
-        This automatically infers the `api_key` argument from the `SPATIALISE_SOIL_PREDICTION_API_KEY` environment variable if it is not provided.
+        This automatically infers the `api_key` argument from the `SPATIALISE_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
-            api_key = os.environ.get("SPATIALISE_SOIL_PREDICTION_API_KEY")
+            api_key = os.environ.get("SPATIALISE_API_KEY")
+        if api_key is None:
+            raise SpatialiseSoilPredictionError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the SPATIALISE_API_KEY environment variable"
+            )
         self.api_key = api_key
 
         if base_url is None:
             base_url = os.environ.get("SPATIALISE_SOIL_PREDICTION_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.spatialise.com"
+            base_url = f"https://soilpredict.api.spatialise.dev/"
 
         super().__init__(
             version=__version__,
@@ -277,6 +273,8 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
             custom_query=default_query,
             _strict_response_validation=_strict_response_validation,
         )
+
+        self._idempotency_header = "Idempotency-Key"
 
         self.health = health.AsyncHealthResource(self)
         self.batch = batch.AsyncBatchResource(self)
@@ -292,8 +290,6 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
     @override
     def auth_headers(self) -> dict[str, str]:
         api_key = self.api_key
-        if api_key is None:
-            return {}
         return {"Authorization": f"Bearer {api_key}"}
 
     @property
@@ -304,17 +300,6 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
             "X-Stainless-Async": f"async:{get_async_library()}",
             **self._custom_headers,
         }
-
-    @override
-    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
-        if self.api_key and headers.get("Authorization"):
-            return
-        if isinstance(custom_headers.get("Authorization"), Omit):
-            return
-
-        raise TypeError(
-            '"Could not resolve authentication method. Expected the api_key to be set. Or for the `Authorization` headers to be explicitly omitted"'
-        )
 
     def copy(
         self,

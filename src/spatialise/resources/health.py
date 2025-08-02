@@ -49,9 +49,9 @@ class HealthResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> object:
         """
-        Service health check endpoint.
+        Health check endpoint for container orchestration.
 
-        Returns: dict: Service health status
+        Returns: dict: Health status
         """
         return self._get(
             "/health",
@@ -93,9 +93,9 @@ class AsyncHealthResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> object:
         """
-        Service health check endpoint.
+        Health check endpoint for container orchestration.
 
-        Returns: dict: Service health status
+        Returns: dict: Health status
         """
         return await self._get(
             "/health",

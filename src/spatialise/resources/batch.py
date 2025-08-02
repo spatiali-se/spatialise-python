@@ -50,7 +50,6 @@ class BatchResource(SyncAPIResource):
         jobs: Iterable[batch_create_params.Job],
         metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
-        idempotency_key: str | NotGiven = NOT_GIVEN,
         webhook_secret: str | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -58,6 +57,7 @@ class BatchResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        idempotency_key: str | None = None,
     ) -> BatchCreateResponse:
         """Submit a batch of soil organic carbon prediction requests.
 
@@ -79,12 +79,13 @@ class BatchResource(SyncAPIResource):
 
         **Rate Limits:**
 
-        - Maximum 100 hectares per day per API key
-        - Maximum 500 jobs per day per API key
+        - Maximum 5000 hectares per day per API key
+        - Maximum 1000 jobs per day per API key
 
-        Args: batch_request: The batch creation request containing prediction jobs
-        authorization: Bearer token for authentication webhook_secret: Optional secret
-        for webhook authentication idempotency_key: Optional key for idempotent requests
+        Args: request: The FastAPI request object client_batch_request: The batch
+        creation request containing prediction jobs idempotency_key: Optional key for
+        idempotent requests webhook_secret: Optional secret for webhook authentication
+        token: The validated authentication token
 
         Returns: BatchResponse: The created batch information including batch ID and
         status
@@ -93,13 +94,14 @@ class BatchResource(SyncAPIResource):
         with different request body 429: If daily rate limits are exceeded
 
         Args:
-          metadata: Optional client-defined metadata
+          jobs: List of prediction jobs
 
-          webhook_url: Optional webhook URL for notification
+          metadata: Optional metadata for the batch
 
-          idempotency_key: Unique key to ensure idempotent request processing
+          webhook_url: Optional webhook URL for batch completion
 
-          webhook_secret: Secret token for authenticating webhook callbacks
+          webhook_secret: Secret token for authenticating webhook callbacks. Required if webhook_url is
+              provided.
 
           extra_headers: Send extra headers
 
@@ -108,16 +110,10 @@ class BatchResource(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+          idempotency_key: Specify a custom idempotency key for this request
         """
-        extra_headers = {
-            **strip_not_given(
-                {
-                    "Idempotency-Key": idempotency_key,
-                    "Webhook-Secret": webhook_secret,
-                }
-            ),
-            **(extra_headers or {}),
-        }
+        extra_headers = {**strip_not_given({"Webhook-Secret": webhook_secret}), **(extra_headers or {})}
         return self._post(
             "/v1/batch/",
             body=maybe_transform(
@@ -129,7 +125,11 @@ class BatchResource(SyncAPIResource):
                 batch_create_params.BatchCreateParams,
             ),
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                idempotency_key=idempotency_key,
             ),
             cast_to=BatchCreateResponse,
         )
@@ -138,7 +138,7 @@ class BatchResource(SyncAPIResource):
         self,
         batch_id: str,
         *,
-        cursor: str | NotGiven = NOT_GIVEN,
+        cursor: Optional[str] | NotGiven = NOT_GIVEN,
         limit: int | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -160,11 +160,16 @@ class BatchResource(SyncAPIResource):
 
         The client identity is determined from the Authorization token.
 
+        Args: request: The FastAPI request object batch_id: The batch ID to query limit:
+        Maximum number of jobs to return (default: 100, max: 100) cursor: Pagination
+        cursor from previous response (Phase 1: ignored) token: The validated
+        authentication token
+
+        Returns: BatchStatusResponse: The batch status and paginated job details
+
+        Raises: HTTPException: If batch not found or query fails
+
         Args:
-          cursor: Pagination cursor from previous response to fetch next page
-
-          limit: Maximum number of jobs to return per page
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -220,7 +225,6 @@ class AsyncBatchResource(AsyncAPIResource):
         jobs: Iterable[batch_create_params.Job],
         metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
-        idempotency_key: str | NotGiven = NOT_GIVEN,
         webhook_secret: str | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -228,6 +232,7 @@ class AsyncBatchResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        idempotency_key: str | None = None,
     ) -> BatchCreateResponse:
         """Submit a batch of soil organic carbon prediction requests.
 
@@ -249,12 +254,13 @@ class AsyncBatchResource(AsyncAPIResource):
 
         **Rate Limits:**
 
-        - Maximum 100 hectares per day per API key
-        - Maximum 500 jobs per day per API key
+        - Maximum 5000 hectares per day per API key
+        - Maximum 1000 jobs per day per API key
 
-        Args: batch_request: The batch creation request containing prediction jobs
-        authorization: Bearer token for authentication webhook_secret: Optional secret
-        for webhook authentication idempotency_key: Optional key for idempotent requests
+        Args: request: The FastAPI request object client_batch_request: The batch
+        creation request containing prediction jobs idempotency_key: Optional key for
+        idempotent requests webhook_secret: Optional secret for webhook authentication
+        token: The validated authentication token
 
         Returns: BatchResponse: The created batch information including batch ID and
         status
@@ -263,13 +269,14 @@ class AsyncBatchResource(AsyncAPIResource):
         with different request body 429: If daily rate limits are exceeded
 
         Args:
-          metadata: Optional client-defined metadata
+          jobs: List of prediction jobs
 
-          webhook_url: Optional webhook URL for notification
+          metadata: Optional metadata for the batch
 
-          idempotency_key: Unique key to ensure idempotent request processing
+          webhook_url: Optional webhook URL for batch completion
 
-          webhook_secret: Secret token for authenticating webhook callbacks
+          webhook_secret: Secret token for authenticating webhook callbacks. Required if webhook_url is
+              provided.
 
           extra_headers: Send extra headers
 
@@ -278,16 +285,10 @@ class AsyncBatchResource(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+          idempotency_key: Specify a custom idempotency key for this request
         """
-        extra_headers = {
-            **strip_not_given(
-                {
-                    "Idempotency-Key": idempotency_key,
-                    "Webhook-Secret": webhook_secret,
-                }
-            ),
-            **(extra_headers or {}),
-        }
+        extra_headers = {**strip_not_given({"Webhook-Secret": webhook_secret}), **(extra_headers or {})}
         return await self._post(
             "/v1/batch/",
             body=await async_maybe_transform(
@@ -299,7 +300,11 @@ class AsyncBatchResource(AsyncAPIResource):
                 batch_create_params.BatchCreateParams,
             ),
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                idempotency_key=idempotency_key,
             ),
             cast_to=BatchCreateResponse,
         )
@@ -308,7 +313,7 @@ class AsyncBatchResource(AsyncAPIResource):
         self,
         batch_id: str,
         *,
-        cursor: str | NotGiven = NOT_GIVEN,
+        cursor: Optional[str] | NotGiven = NOT_GIVEN,
         limit: int | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -330,11 +335,16 @@ class AsyncBatchResource(AsyncAPIResource):
 
         The client identity is determined from the Authorization token.
 
+        Args: request: The FastAPI request object batch_id: The batch ID to query limit:
+        Maximum number of jobs to return (default: 100, max: 100) cursor: Pagination
+        cursor from previous response (Phase 1: ignored) token: The validated
+        authentication token
+
+        Returns: BatchStatusResponse: The batch status and paginated job details
+
+        Raises: HTTPException: If batch not found or query fails
+
         Args:
-          cursor: Pagination cursor from previous response to fetch next page
-
-          limit: Maximum number of jobs to return per page
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request

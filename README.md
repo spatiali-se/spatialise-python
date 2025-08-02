@@ -32,7 +32,45 @@ client = SpatialiseSoilPrediction(
     api_key=os.environ.get("SPATIALISE_API_KEY"),  # This is the default and can be omitted
 )
 
-response = client.health.check()
+batch = client.batch.create(
+    jobs=[
+        {
+            "year": 2021,
+            "polygon": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [6.7, 52.8],
+                        [6.70074, 52.8],
+                        [6.70074, 52.80045],
+                        [6.7, 52.80045],
+                        [6.7, 52.8],
+                    ]
+                ],
+            },
+        },
+        {
+            "year": 2022,
+            "polygon": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [6.7, 52.8],
+                        [6.70074, 52.8],
+                        [6.70074, 52.80045],
+                        [6.7, 52.80045],
+                        [6.7, 52.8],
+                    ]
+                ],
+            },
+        },
+    ],
+    metadata={
+        "project": "Drenthe Soil Analysis",
+        "location": "Netherlands",
+    },
+)
+print(batch.batch_id)
 ```
 
 While you can provide an `api_key` keyword argument,
@@ -55,7 +93,45 @@ client = AsyncSpatialiseSoilPrediction(
 
 
 async def main() -> None:
-    response = await client.health.check()
+    batch = await client.batch.create(
+        jobs=[
+            {
+                "year": 2021,
+                "polygon": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [6.7, 52.8],
+                            [6.70074, 52.8],
+                            [6.70074, 52.80045],
+                            [6.7, 52.80045],
+                            [6.7, 52.8],
+                        ]
+                    ],
+                },
+            },
+            {
+                "year": 2022,
+                "polygon": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [6.7, 52.8],
+                            [6.70074, 52.8],
+                            [6.70074, 52.80045],
+                            [6.7, 52.80045],
+                            [6.7, 52.8],
+                        ]
+                    ],
+                },
+            },
+        ],
+        metadata={
+            "project": "Drenthe Soil Analysis",
+            "location": "Netherlands",
+        },
+    )
+    print(batch.batch_id)
 
 
 asyncio.run(main())
@@ -87,7 +163,45 @@ async def main() -> None:
         api_key="My API Key",
         http_client=DefaultAioHttpClient(),
     ) as client:
-        response = await client.health.check()
+        batch = await client.batch.create(
+            jobs=[
+                {
+                    "year": 2021,
+                    "polygon": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [6.7, 52.8],
+                                [6.70074, 52.8],
+                                [6.70074, 52.80045],
+                                [6.7, 52.80045],
+                                [6.7, 52.8],
+                            ]
+                        ],
+                    },
+                },
+                {
+                    "year": 2022,
+                    "polygon": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [6.7, 52.8],
+                                [6.70074, 52.8],
+                                [6.70074, 52.80045],
+                                [6.7, 52.80045],
+                                [6.7, 52.8],
+                            ]
+                        ],
+                    },
+                },
+            ],
+            metadata={
+                "project": "Drenthe Soil Analysis",
+                "location": "Netherlands",
+            },
+        )
+        print(batch.batch_id)
 
 
 asyncio.run(main())
@@ -118,7 +232,25 @@ from spatialise import SpatialiseSoilPrediction
 client = SpatialiseSoilPrediction()
 
 try:
-    client.health.check()
+    client.batch.create(
+        jobs=[
+            {
+                "year": 2021,
+                "polygon": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [6.7, 52.8],
+                            [6.70074, 52.8],
+                            [6.70074, 52.80045],
+                            [6.7, 52.80045],
+                            [6.7, 52.8],
+                        ]
+                    ],
+                },
+            }
+        ],
+    )
 except spatialise.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
@@ -161,7 +293,25 @@ client = SpatialiseSoilPrediction(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).health.check()
+client.with_options(max_retries=5).batch.create(
+    jobs=[
+        {
+            "year": 2021,
+            "polygon": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [6.7, 52.8],
+                        [6.70074, 52.8],
+                        [6.70074, 52.80045],
+                        [6.7, 52.80045],
+                        [6.7, 52.8],
+                    ]
+                ],
+            },
+        }
+    ],
+)
 ```
 
 ### Timeouts
@@ -184,7 +334,25 @@ client = SpatialiseSoilPrediction(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).health.check()
+client.with_options(timeout=5.0).batch.create(
+    jobs=[
+        {
+            "year": 2021,
+            "polygon": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [6.7, 52.8],
+                        [6.70074, 52.8],
+                        [6.70074, 52.80045],
+                        [6.7, 52.80045],
+                        [6.7, 52.8],
+                    ]
+                ],
+            },
+        }
+    ],
+)
 ```
 
 On timeout, an `APITimeoutError` is thrown.
@@ -225,11 +393,19 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from spatialise import SpatialiseSoilPrediction
 
 client = SpatialiseSoilPrediction()
-response = client.health.with_raw_response.check()
+response = client.batch.with_raw_response.create(
+    jobs=[{
+        "year": 2021,
+        "polygon": {
+            "type": "Polygon",
+            "coordinates": [[[6.7, 52.8], [6.70074, 52.8], [6.70074, 52.80045], [6.7, 52.80045], [6.7, 52.8]]],
+        },
+    }],
+)
 print(response.headers.get('X-My-Header'))
 
-health = response.parse()  # get the object that `health.check()` would have returned
-print(health)
+batch = response.parse()  # get the object that `batch.create()` would have returned
+print(batch.batch_id)
 ```
 
 These methods return an [`APIResponse`](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise/_response.py) object.
@@ -243,7 +419,25 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.health.with_streaming_response.check() as response:
+with client.batch.with_streaming_response.create(
+    jobs=[
+        {
+            "year": 2021,
+            "polygon": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [6.7, 52.8],
+                        [6.70074, 52.8],
+                        [6.70074, 52.80045],
+                        [6.7, 52.80045],
+                        [6.7, 52.8],
+                    ]
+                ],
+            },
+        }
+    ],
+) as response:
     print(response.headers.get("X-My-Header"))
 
     for line in response.iter_lines():

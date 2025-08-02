@@ -102,6 +102,8 @@ class SpatialiseSoilPrediction(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
+        self._idempotency_header = "Idempotency-Key"
+
         self.health = health.HealthResource(self)
         self.batch = batch.BatchResource(self)
         self.with_raw_response = SpatialiseSoilPredictionWithRawResponse(self)
@@ -271,6 +273,8 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
             custom_query=default_query,
             _strict_response_validation=_strict_response_validation,
         )
+
+        self._idempotency_header = "Idempotency-Key"
 
         self.health = health.AsyncHealthResource(self)
         self.batch = batch.AsyncBatchResource(self)

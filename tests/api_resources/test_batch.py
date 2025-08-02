@@ -28,10 +28,7 @@ class TestBatch:
         batch = client.batch.create(
             jobs=[
                 {
-                    "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
-                        "type": "Polygon",
-                    },
+                    "polygon": {"coordinates": [[[0]]]},
                     "year": 2018,
                 }
             ],
@@ -47,15 +44,14 @@ class TestBatch:
             jobs=[
                 {
                     "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
+                        "coordinates": [[[0]]],
                         "type": "Polygon",
                     },
                     "year": 2018,
                 }
             ],
             metadata={"foo": "bar"},
-            webhook_url="https://example.com",
-            idempotency_key="Idempotency-Key",
+            webhook_url="webhook_url",
             webhook_secret="Webhook-Secret",
         )
         assert_matches_type(BatchCreateResponse, batch, path=["response"])
@@ -68,10 +64,7 @@ class TestBatch:
         response = client.batch.with_raw_response.create(
             jobs=[
                 {
-                    "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
-                        "type": "Polygon",
-                    },
+                    "polygon": {"coordinates": [[[0]]]},
                     "year": 2018,
                 }
             ],
@@ -90,10 +83,7 @@ class TestBatch:
         with client.batch.with_streaming_response.create(
             jobs=[
                 {
-                    "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
-                        "type": "Polygon",
-                    },
+                    "polygon": {"coordinates": [[[0]]]},
                     "year": 2018,
                 }
             ],
@@ -120,7 +110,7 @@ class TestBatch:
         batch = client.batch.retrieve_status(
             batch_id="batch_id",
             cursor="cursor",
-            limit=1,
+            limit=0,
         )
         assert_matches_type(BatchRetrieveStatusResponse, batch, path=["response"])
 
@@ -172,10 +162,7 @@ class TestAsyncBatch:
         batch = await async_client.batch.create(
             jobs=[
                 {
-                    "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
-                        "type": "Polygon",
-                    },
+                    "polygon": {"coordinates": [[[0]]]},
                     "year": 2018,
                 }
             ],
@@ -191,15 +178,14 @@ class TestAsyncBatch:
             jobs=[
                 {
                     "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
+                        "coordinates": [[[0]]],
                         "type": "Polygon",
                     },
                     "year": 2018,
                 }
             ],
             metadata={"foo": "bar"},
-            webhook_url="https://example.com",
-            idempotency_key="Idempotency-Key",
+            webhook_url="webhook_url",
             webhook_secret="Webhook-Secret",
         )
         assert_matches_type(BatchCreateResponse, batch, path=["response"])
@@ -212,10 +198,7 @@ class TestAsyncBatch:
         response = await async_client.batch.with_raw_response.create(
             jobs=[
                 {
-                    "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
-                        "type": "Polygon",
-                    },
+                    "polygon": {"coordinates": [[[0]]]},
                     "year": 2018,
                 }
             ],
@@ -234,10 +217,7 @@ class TestAsyncBatch:
         async with async_client.batch.with_streaming_response.create(
             jobs=[
                 {
-                    "polygon": {
-                        "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]],
-                        "type": "Polygon",
-                    },
+                    "polygon": {"coordinates": [[[0]]]},
                     "year": 2018,
                 }
             ],
@@ -264,7 +244,7 @@ class TestAsyncBatch:
         batch = await async_client.batch.retrieve_status(
             batch_id="batch_id",
             cursor="cursor",
-            limit=1,
+            limit=0,
         )
         assert_matches_type(BatchRetrieveStatusResponse, batch, path=["response"])
 

@@ -552,6 +552,37 @@ class TestSpatialiseSoilPrediction:
         assert isinstance(response, Model)
         assert response.foo == 2
 
+    @pytest.mark.respx(base_url=base_url)
+    def test_idempotency_header_options(self, respx_mock: MockRouter) -> None:
+        respx_mock.post("/foo").mock(return_value=httpx.Response(200, json={}))
+
+        response = self.client.post("/foo", cast_to=httpx.Response)
+
+        header = response.request.headers.get("Idempotency-Key")
+        assert header is not None
+        assert header.startswith("stainless-python-retry")
+
+        # explicit header
+        response = self.client.post(
+            "/foo",
+            cast_to=httpx.Response,
+            options=make_request_options(extra_headers={"Idempotency-Key": "custom-key"}),
+        )
+        assert response.request.headers.get("Idempotency-Key") == "custom-key"
+
+        response = self.client.post(
+            "/foo",
+            cast_to=httpx.Response,
+            options=make_request_options(extra_headers={"idempotency-key": "custom-key"}),
+        )
+        assert response.request.headers.get("Idempotency-Key") == "custom-key"
+
+        # custom argument
+        response = self.client.post(
+            "/foo", cast_to=httpx.Response, options=make_request_options(idempotency_key="custom-key")
+        )
+        assert response.request.headers.get("Idempotency-Key") == "custom-key"
+
     def test_base_url_setter(self) -> None:
         client = SpatialiseSoilPrediction(
             base_url="https://example.com/from_init", api_key=api_key, _strict_response_validation=True
@@ -731,20 +762,34 @@ class TestSpatialiseSoilPrediction:
     def test_retrying_timeout_errors_doesnt_leak(
         self, respx_mock: MockRouter, client: SpatialiseSoilPrediction
     ) -> None:
-        respx_mock.get("/health").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/batch/").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            client.health.with_streaming_response.check().__enter__()
+            client.batch.with_streaming_response.create(
+                jobs=[
+                    {
+                        "polygon": {"coordinates": [[[0]]]},
+                        "year": 2018,
+                    }
+                ]
+            ).__enter__()
 
         assert _get_open_connections(self.client) == 0
 
     @mock.patch("spatialise._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, client: SpatialiseSoilPrediction) -> None:
-        respx_mock.get("/health").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/batch/").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            client.health.with_streaming_response.check().__enter__()
+            client.batch.with_streaming_response.create(
+                jobs=[
+                    {
+                        "polygon": {"coordinates": [[[0]]]},
+                        "year": 2018,
+                    }
+                ]
+            ).__enter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -771,9 +816,16 @@ class TestSpatialiseSoilPrediction:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/health").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/batch/").mock(side_effect=retry_handler)
 
-        response = client.health.with_raw_response.check()
+        response = client.batch.with_raw_response.create(
+            jobs=[
+                {
+                    "polygon": {"coordinates": [[[0]]]},
+                    "year": 2018,
+                }
+            ]
+        )
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -795,9 +847,17 @@ class TestSpatialiseSoilPrediction:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/health").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/batch/").mock(side_effect=retry_handler)
 
-        response = client.health.with_raw_response.check(extra_headers={"x-stainless-retry-count": Omit()})
+        response = client.batch.with_raw_response.create(
+            jobs=[
+                {
+                    "polygon": {"coordinates": [[[0]]]},
+                    "year": 2018,
+                }
+            ],
+            extra_headers={"x-stainless-retry-count": Omit()},
+        )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -818,9 +878,17 @@ class TestSpatialiseSoilPrediction:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/health").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/batch/").mock(side_effect=retry_handler)
 
-        response = client.health.with_raw_response.check(extra_headers={"x-stainless-retry-count": "42"})
+        response = client.batch.with_raw_response.create(
+            jobs=[
+                {
+                    "polygon": {"coordinates": [[[0]]]},
+                    "year": 2018,
+                }
+            ],
+            extra_headers={"x-stainless-retry-count": "42"},
+        )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 
@@ -1367,6 +1435,37 @@ class TestAsyncSpatialiseSoilPrediction:
         assert isinstance(response, Model)
         assert response.foo == 2
 
+    @pytest.mark.respx(base_url=base_url)
+    async def test_idempotency_header_options(self, respx_mock: MockRouter) -> None:
+        respx_mock.post("/foo").mock(return_value=httpx.Response(200, json={}))
+
+        response = await self.client.post("/foo", cast_to=httpx.Response)
+
+        header = response.request.headers.get("Idempotency-Key")
+        assert header is not None
+        assert header.startswith("stainless-python-retry")
+
+        # explicit header
+        response = await self.client.post(
+            "/foo",
+            cast_to=httpx.Response,
+            options=make_request_options(extra_headers={"Idempotency-Key": "custom-key"}),
+        )
+        assert response.request.headers.get("Idempotency-Key") == "custom-key"
+
+        response = await self.client.post(
+            "/foo",
+            cast_to=httpx.Response,
+            options=make_request_options(extra_headers={"idempotency-key": "custom-key"}),
+        )
+        assert response.request.headers.get("Idempotency-Key") == "custom-key"
+
+        # custom argument
+        response = await self.client.post(
+            "/foo", cast_to=httpx.Response, options=make_request_options(idempotency_key="custom-key")
+        )
+        assert response.request.headers.get("Idempotency-Key") == "custom-key"
+
     def test_base_url_setter(self) -> None:
         client = AsyncSpatialiseSoilPrediction(
             base_url="https://example.com/from_init", api_key=api_key, _strict_response_validation=True
@@ -1552,10 +1651,17 @@ class TestAsyncSpatialiseSoilPrediction:
     async def test_retrying_timeout_errors_doesnt_leak(
         self, respx_mock: MockRouter, async_client: AsyncSpatialiseSoilPrediction
     ) -> None:
-        respx_mock.get("/health").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/batch/").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await async_client.health.with_streaming_response.check().__aenter__()
+            await async_client.batch.with_streaming_response.create(
+                jobs=[
+                    {
+                        "polygon": {"coordinates": [[[0]]]},
+                        "year": 2018,
+                    }
+                ]
+            ).__aenter__()
 
         assert _get_open_connections(self.client) == 0
 
@@ -1564,10 +1670,17 @@ class TestAsyncSpatialiseSoilPrediction:
     async def test_retrying_status_errors_doesnt_leak(
         self, respx_mock: MockRouter, async_client: AsyncSpatialiseSoilPrediction
     ) -> None:
-        respx_mock.get("/health").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/batch/").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await async_client.health.with_streaming_response.check().__aenter__()
+            await async_client.batch.with_streaming_response.create(
+                jobs=[
+                    {
+                        "polygon": {"coordinates": [[[0]]]},
+                        "year": 2018,
+                    }
+                ]
+            ).__aenter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -1595,9 +1708,16 @@ class TestAsyncSpatialiseSoilPrediction:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/health").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/batch/").mock(side_effect=retry_handler)
 
-        response = await client.health.with_raw_response.check()
+        response = await client.batch.with_raw_response.create(
+            jobs=[
+                {
+                    "polygon": {"coordinates": [[[0]]]},
+                    "year": 2018,
+                }
+            ]
+        )
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1620,9 +1740,17 @@ class TestAsyncSpatialiseSoilPrediction:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/health").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/batch/").mock(side_effect=retry_handler)
 
-        response = await client.health.with_raw_response.check(extra_headers={"x-stainless-retry-count": Omit()})
+        response = await client.batch.with_raw_response.create(
+            jobs=[
+                {
+                    "polygon": {"coordinates": [[[0]]]},
+                    "year": 2018,
+                }
+            ],
+            extra_headers={"x-stainless-retry-count": Omit()},
+        )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -1644,9 +1772,17 @@ class TestAsyncSpatialiseSoilPrediction:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/health").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/batch/").mock(side_effect=retry_handler)
 
-        response = await client.health.with_raw_response.check(extra_headers={"x-stainless-retry-count": "42"})
+        response = await client.batch.with_raw_response.create(
+            jobs=[
+                {
+                    "polygon": {"coordinates": [[[0]]]},
+                    "year": 2018,
+                }
+            ],
+            extra_headers={"x-stainless-retry-count": "42"},
+        )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Optional
 from typing_extensions import TypedDict
 
 __all__ = ["BatchRetrieveStatusParams"]
 
 
 class BatchRetrieveStatusParams(TypedDict, total=False):
-    cursor: str
-    """Pagination cursor from previous response to fetch next page"""
+    cursor: Optional[str]
 
     limit: int
-    """Maximum number of jobs to return per page"""

@@ -12,13 +12,16 @@ __all__ = ["BatchRetrieveStatusResponse", "Job"]
 
 class Job(BaseModel):
     created_at: datetime
+    """Job creation timestamp"""
 
     job_id: str
+    """Unique identifier for the job"""
 
     status: Literal["pending", "running", "completed", "failed", "cancelled"]
-    """Status of an individual job."""
+    """Current status of the job"""
 
     updated_at: datetime
+    """Last update timestamp"""
 
     error_message: Optional[str] = None
     """Error message if job failed"""
@@ -32,25 +35,31 @@ class BatchRetrieveStatusResponse(BaseModel):
     """Unique identifier for the batch"""
 
     completed_jobs: int
+    """Number of completed jobs"""
 
     created_at: datetime
+    """Batch creation timestamp"""
 
     failed_jobs: int
+    """Number of failed jobs"""
 
     has_more: bool
     """Whether there are more jobs to fetch"""
 
     jobs: List[Job]
-    """Status of individual jobs in this page"""
-
-    next_cursor: Optional[str] = None
-    """Cursor for fetching the next page. Null if no more pages."""
+    """Status of individual jobs"""
 
     pending_jobs: int
+    """Number of pending jobs"""
 
     status: BatchStatus
     """Current status of the batch"""
 
     total_jobs: int
+    """Total number of jobs in the batch"""
 
     updated_at: datetime
+    """Last update timestamp"""
+
+    next_cursor: Optional[str] = None
+    """Cursor for fetching the next page. Null if no more pages."""

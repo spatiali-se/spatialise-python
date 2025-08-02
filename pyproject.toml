@@ -5,7 +5,7 @@ description = "The official Python library for the spatialise-soil-prediction AP
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Spatialise Soil Prediction", email = "" },
+{ name = "Spatialise Soil Prediction", email = "support@spatiali.se" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",

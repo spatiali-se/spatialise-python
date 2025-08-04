@@ -26,11 +26,14 @@ class Job(BaseModel):
     error_message: Optional[str] = None
     """Error message if job failed"""
 
-    result_url: Optional[str] = None
-    """Temporary signed URL to download result GeoTIFF. Valid for 6 hours."""
+    signed_cog_url: Optional[str] = None
+    """Temporary signed URL to download result Cloud Optimized GeoTIFF (COG).
 
-    result_url_created_at: Optional[datetime] = None
-    """UTC timestamp when the result URL was generated"""
+    Valid for 6 hours.
+    """
+
+    signed_cog_url_created_at: Optional[datetime] = None
+    """UTC timestamp when the signed COG URL was generated"""
 
 
 class BatchRetrieveStatusResponse(BaseModel):

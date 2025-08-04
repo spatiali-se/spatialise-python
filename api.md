@@ -1,8 +1,14 @@
 # Health
 
+Types:
+
+```python
+from spatialise.types import HealthCheckResponse
+```
+
 Methods:
 
-- <code title="get /health">client.health.<a href="./src/spatialise/resources/health.py">check</a>() -> object</code>
+- <code title="get /health">client.health.<a href="./src/spatialise/resources/health.py">check</a>() -> <a href="./src/spatialise/types/health_check_response.py">HealthCheckResponse</a></code>
 
 # Batch
 

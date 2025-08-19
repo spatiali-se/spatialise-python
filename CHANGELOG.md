@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.5 (2025-08-09)
+
+Full Changelog: [v0.1.0-alpha.4...v0.1.0-alpha.5](https://github.com/spatiali-se/spatialise-python/compare/v0.1.0-alpha.4...v0.1.0-alpha.5)
+
+### Chores
+
+* **internal:** fix ruff target version ([dd94147](https://github.com/spatiali-se/spatialise-python/commit/dd941471edafa39aa6c27819a66862105780e94b))
+* update @stainless-api/prism-cli to v5.15.0 ([a265f34](https://github.com/spatiali-se/spatialise-python/commit/a265f34eed057447601160003c73e72316d0f1df))
+
 ## 0.1.0-alpha.4 (2025-08-04)
 
 Full Changelog: [v0.1.0-alpha.3...v0.1.0-alpha.4](https://github.com/spatiali-se/spatialise-python/compare/v0.1.0-alpha.3...v0.1.0-alpha.4)

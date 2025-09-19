@@ -7,7 +7,7 @@ from typing import Dict, Iterable, Optional
 import httpx
 
 from ..types import batch_create_params, batch_retrieve_status_params
-from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import maybe_transform, strip_not_given, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -48,15 +48,15 @@ class BatchResource(SyncAPIResource):
         self,
         *,
         jobs: Iterable[batch_create_params.Job],
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
-        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_secret: str | NotGiven = NOT_GIVEN,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
+        webhook_secret: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
         idempotency_key: str | None = None,
     ) -> BatchCreateResponse:
         """Submit a batch of soil organic carbon prediction requests.
@@ -138,14 +138,14 @@ class BatchResource(SyncAPIResource):
         self,
         batch_id: str,
         *,
-        cursor: Optional[str] | NotGiven = NOT_GIVEN,
-        limit: int | NotGiven = NOT_GIVEN,
+        cursor: Optional[str] | Omit = omit,
+        limit: int | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchRetrieveStatusResponse:
         """
         Retrieve the current status of a soil organic carbon prediction batch.
@@ -223,15 +223,15 @@ class AsyncBatchResource(AsyncAPIResource):
         self,
         *,
         jobs: Iterable[batch_create_params.Job],
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
-        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_secret: str | NotGiven = NOT_GIVEN,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
+        webhook_secret: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
         idempotency_key: str | None = None,
     ) -> BatchCreateResponse:
         """Submit a batch of soil organic carbon prediction requests.
@@ -313,14 +313,14 @@ class AsyncBatchResource(AsyncAPIResource):
         self,
         batch_id: str,
         *,
-        cursor: Optional[str] | NotGiven = NOT_GIVEN,
-        limit: int | NotGiven = NOT_GIVEN,
+        cursor: Optional[str] | Omit = omit,
+        limit: int | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchRetrieveStatusResponse:
         """
         Retrieve the current status of a soil organic carbon prediction batch.

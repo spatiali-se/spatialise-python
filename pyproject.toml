@@ -1,6 +1,6 @@
 [project]
 name = "spatialise"
-version = "0.1.0-alpha.6"
+version = "0.1.0-alpha.7"
 description = "The official Python library for the spatialise-soil-prediction API"
 dynamic = ["readme"]
 license = "Apache-2.0"
@@ -148,6 +148,7 @@ exclude = [
     ".venv",
     ".nox",
     ".git",
+    "examples",
 ]
 
 reportImplicitOverride = true
@@ -166,7 +167,10 @@ show_error_codes = true
 #
 # We also exclude our `tests` as mypy doesn't always infer
 # types correctly and Pyright will still catch any type errors.
-exclude = ['src/spatialise/_files.py', '_dev/.*.py', 'tests/.*']
+#
+# Exclude examples as they have optional dependencies (Flask, FastAPI)
+# that aren't part of the core package.
+exclude = ['src/spatialise/_files.py', '_dev/.*.py', 'tests/.*', 'examples/.*']
 
 strict_equality = true
 implicit_reexport = true
@@ -261,3 +265,4 @@ known-first-party = ["spatialise", "tests"]
 "scripts/**.py" = ["T201", "T203"]
 "tests/**.py" = ["T201", "T203"]
 "examples/**.py" = ["T201", "T203"]
+"examples/**.ipynb" = ["T201", "T203"]

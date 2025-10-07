@@ -1,0 +1,1078 @@
+openapi: 3.1.0
+info:
+  title: Spatialise - Soil Organic Carbon Prediction API
+  description: |
+    Spatialise API enables prediction of soil organic carbon densities for specified geographic areas and years. Customers can submit multiple prediction requests in batches, monitor batch progress, and retrieve results as cloud-optimized GeoTIFF files.
+
+    **Key Features:**
+    - Batch processing of soil organic carbon predictions
+    - Synchronous status polling with pagination
+    - Asynchronous webhook notifications with HMAC-SHA256 signatures
+    - Idempotent request handling
+    - Cloud-optimized GeoTIFF deliverables
+
+    **Rate Limits:**
+    - 5000 hectares per day per API key
+    - 1000 jobs per day per API key
+
+    Limits reset daily at 00:00 UTC.
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health Check
+      description: |-
+        Health check endpoint for container orchestration.
+
+        Returns:
+            dict: Health status
+      operationId: health_check_health_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Health Check Health Get
+  /v1/batch/:
+    post:
+      tags:
+        - batch
+      summary: Create Batch
+      description: |-
+        Submit a batch of soil organic carbon prediction requests.
+
+        This endpoint:
+        1. Validates the batch request containing multiple prediction jobs
+        2. Creates a batch for processing soil organic carbon density predictions
+        3. Initiates processing for each geographic area and year combination
+        4. Returns batch information for tracking progress
+
+        Each job in the batch will generate a cloud-optimized GeoTIFF containing soil organic carbon density predictions for the specified polygon and year.
+
+        **Idempotency:**
+        Provide an `Idempotency-Key` header to ensure requests are processed only once. If the same key is received within 24 hours, the original response is returned without reprocessing.
+
+        **Rate Limits:**
+        - Maximum 5000 hectares per day per API key
+        - Maximum 1000 jobs per day per API key
+
+        Args:
+            request: The FastAPI request object
+            client_batch_request: The batch creation request containing prediction jobs
+            idempotency_key: Optional key for idempotent requests
+            webhook_secret: Optional secret for webhook authentication
+            token: The validated authentication token
+
+        Returns:
+            BatchResponse: The created batch information including batch ID and status
+
+        Raises:
+            HTTPException: If batch creation fails
+            409: If idempotency key is reused with different request body
+            429: If daily rate limits are exceeded
+      operationId: create_batch_v1_batch__post
+      x-code-samples:
+        - lang: python
+          label: Basic Batch Creation
+          source: |
+            import os
+            from spatialise import SpatialiseSoilPrediction
+
+            # Initialize client with API key
+            client = SpatialiseSoilPrediction(
+                api_key=os.environ.get("SPATIALISE_API_KEY"),
+            )
+
+            # Create batch with prediction jobs
+            batch = client.batch.create(
+                jobs=[
+                    {
+                        "year": 2021,
+                        "polygon": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [6.7, 52.8],
+                                    [6.70074, 52.8],
+                                    [6.70074, 52.80045],
+                                    [6.7, 52.80045],
+                                    [6.7, 52.8],
+                                ]
+                            ],
+                        },
+                    },
+                    {
+                        "year": 2022,
+                        "polygon": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [6.7, 52.8],
+                                    [6.70074, 52.8],
+                                    [6.70074, 52.80045],
+                                    [6.7, 52.80045],
+                                    [6.7, 52.8],
+                                ]
+                            ],
+                        },
+                    },
+                ],
+                metadata={
+                    "project": "Soil Analysis",
+                    "location": "Netherlands",
+                },
+            )
+
+            print(f"Batch ID: {batch.batch_id}")
+            print(f"Status: {batch.status}")
+            print(f"Total jobs: {batch.total_jobs}")
+        - lang: python
+          label: Idempotent Request with Webhook
+          source: |
+            import os
+            from spatialise import SpatialiseSoilPrediction
+
+            client = SpatialiseSoilPrediction(
+                api_key=os.environ.get("SPATIALISE_API_KEY"),
+            )
+
+            # Webhook configuration
+            webhook_url = "https://your-domain.com/webhooks/spatialise/batch-complete"
+            webhook_secret = os.environ.get("SPATIALISE_WEBHOOK_SECRET")
+
+            # Create batch with idempotency and webhook
+            batch = client.batch.create(
+                jobs=[
+                    {
+                        "year": 2021,
+                        "polygon": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [6.7, 52.8],
+                                    [6.70074, 52.8],
+                                    [6.70074, 52.80045],
+                                    [6.7, 52.80045],
+                                    [6.7, 52.8],
+                                ]
+                            ],
+                        },
+                    }
+                ],
+                webhook_url=webhook_url,
+                webhook_secret=webhook_secret,
+                idempotency_key="unique-request-id-12345",
+                metadata={"project": "Production Run"},
+            )
+
+            # Idempotency: Retrying with same key returns original response
+            # without creating a duplicate batch
+            batch_retry = client.batch.create(
+                jobs=[...],  # Same request body
+                idempotency_key="unique-request-id-12345",  # Same key
+            )
+            # batch_retry.batch_id == batch.batch_id (same batch)
+
+            print(f"Batch ID: {batch.batch_id}")
+            print(f"Webhook configured: {webhook_url}")
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            anyOf:
+              - type: string
+                maxLength: 255
+                pattern: ^[a-zA-Z0-9-_]{1,255}$
+              - type: "null"
+            description: Unique key to prevent duplicate batch creation. If the same key is received within 24 hours, the original response will be returned without reprocessing.
+            title: Idempotency-Key
+          description: Unique key to prevent duplicate batch creation. If the same key is received within 24 hours, the original response will be returned without reprocessing.
+        - name: Webhook-Secret
+          in: header
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Secret token for authenticating webhook callbacks. Required if webhook_url is provided.
+            title: Webhook-Secret
+          description: Secret token for authenticating webhook callbacks. Required if webhook_url is provided.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientBatchRequest'
+      callbacks:
+        batch_completion_notification:
+          '{$request.body#/webhook_url}':
+            post:
+              tags:
+                - callbacks
+              summary: Batch Completion Notification
+              description: |-
+                Notification sent when soil organic carbon prediction batch processing is completed.
+
+                The webhook request is authenticated using HMAC-SHA256. The `Spatialise-Signature` header contains a signature computed as:
+                `sha256=hex(HMAC-SHA256(webhook_secret, timestamp + '.' + request_body))`
+
+                Where timestamp is the value from the `Spatialise-Timestamp` header. Receivers should:
+                1. Validate the timestamp is recent (within 5 minutes) to prevent replay attacks
+                2. Compute the expected signature using the Webhook-Secret
+                3. Compare signatures using constant-time comparison
+              operationId: batch_completion_notification__request_body__webhook_url__post
+              x-code-samples:
+                - lang: python
+                  label: FastAPI Webhook Handler with HMAC Verification
+                  source: |
+                    import os
+                    import hmac
+                    import hashlib
+                    from datetime import datetime, timezone
+                    from fastapi import FastAPI, Header, Request, HTTPException
+
+                    app = FastAPI()
+
+                    # Same secret used when creating the batch
+                    WEBHOOK_SECRET = os.environ.get("SPATIALISE_WEBHOOK_SECRET")
+
+                    @app.post("/webhooks/spatialise/batch-complete")
+                    async def handle_batch_complete(
+                        request: Request,
+                        spatialise_signature: str = Header(..., alias="Spatialise-Signature"),
+                        spatialise_timestamp: str = Header(..., alias="Spatialise-Timestamp"),
+                        spatialise_webhook_id: str = Header(..., alias="Spatialise-Webhook-ID"),
+                    ):
+                        """Handle batch completion webhook with HMAC-SHA256 verification."""
+
+                        # Get raw request body for signature verification
+                        body = await request.body()
+
+                        # Step 1: Validate timestamp to prevent replay attacks
+                        try:
+                            webhook_time = datetime.fromisoformat(
+                                spatialise_timestamp.replace('Z', '+00:00')
+                            )
+                            now = datetime.now(timezone.utc)
+                            time_diff = abs((now - webhook_time).total_seconds())
+
+                            # Reject webhooks older than 5 minutes
+                            if time_diff > 300:
+                                raise HTTPException(
+                                    status_code=401,
+                                    detail="Webhook timestamp too old"
+                                )
+                        except ValueError:
+                            raise HTTPException(
+                                status_code=401,
+                                detail="Invalid timestamp format"
+                            )
+
+                        # Step 2: Compute expected HMAC-SHA256 signature
+                        # Format: HMAC-SHA256(webhook_secret, timestamp + '.' + request_body)
+                        signed_payload = f"{spatialise_timestamp}.{body.decode('utf-8')}"
+                        expected_signature = hmac.new(
+                            WEBHOOK_SECRET.encode(),
+                            signed_payload.encode(),
+                            hashlib.sha256
+                        ).hexdigest()
+                        expected_signature_header = f"sha256={expected_signature}"
+
+                        # Step 3: Verify signature using constant-time comparison
+                        if not hmac.compare_digest(spatialise_signature, expected_signature_header):
+                            raise HTTPException(
+                                status_code=401,
+                                detail="Invalid webhook signature"
+                            )
+
+                        # Step 4: Process the verified webhook payload
+                        data = await request.json()
+                        batch_info = data["batch_info"]
+
+                        print(f"✓ Verified webhook: {spatialise_webhook_id}")
+                        print(f"  Batch ID: {batch_info['batch_id']}")
+                        print(f"  Status: {batch_info['status']}")
+                        print(f"  Completed: {batch_info['completed_jobs']}/{batch_info['total_jobs']}")
+
+                        # Process completed jobs
+                        for job in batch_info["jobs"]:
+                            if job["status"] == "completed":
+                                print(f"  ✓ Job {job['job_id']}: {job['signed_cog_url']}")
+                                # Download GeoTIFF, update database, send notifications, etc.
+                            elif job["status"] == "failed":
+                                print(f"  ✗ Job {job['job_id']}: {job['error_message']}")
+                                # Log error, send alert, retry job, etc.
+
+                        return {"status": "received", "batch_id": batch_info["batch_id"]}
+                - lang: python
+                  label: Flask Webhook Handler with HMAC Verification
+                  source: |
+                    import os
+                    import hmac
+                    import hashlib
+                    from datetime import datetime, timezone
+                    from flask import Flask, request, jsonify
+
+                    app = Flask(__name__)
+
+                    # Same secret used when creating the batch
+                    WEBHOOK_SECRET = os.environ.get("SPATIALISE_WEBHOOK_SECRET")
+
+                    @app.route("/webhooks/spatialise/batch-complete", methods=["POST"])
+                    def handle_batch_complete():
+                        """Handle batch completion webhook with HMAC-SHA256 verification."""
+
+                        # Get headers
+                        signature = request.headers.get("Spatialise-Signature")
+                        timestamp = request.headers.get("Spatialise-Timestamp")
+                        webhook_id = request.headers.get("Spatialise-Webhook-ID")
+
+                        if not signature or not timestamp:
+                            return jsonify({"error": "Missing required headers"}), 401
+
+                        # Step 1: Validate timestamp to prevent replay attacks
+                        try:
+                            webhook_time = datetime.fromisoformat(
+                                timestamp.replace('Z', '+00:00')
+                            )
+                            now = datetime.now(timezone.utc)
+                            time_diff = abs((now - webhook_time).total_seconds())
+
+                            # Reject webhooks older than 5 minutes
+                            if time_diff > 300:
+                                return jsonify({"error": "Timestamp too old"}), 401
+                        except ValueError:
+                            return jsonify({"error": "Invalid timestamp"}), 401
+
+                        # Step 2: Compute expected HMAC-SHA256 signature
+                        # Format: HMAC-SHA256(webhook_secret, timestamp + '.' + request_body)
+                        body = request.get_data()
+                        signed_payload = f"{timestamp}.{body.decode('utf-8')}"
+                        expected_signature = hmac.new(
+                            WEBHOOK_SECRET.encode(),
+                            signed_payload.encode(),
+                            hashlib.sha256
+                        ).hexdigest()
+                        expected_signature_header = f"sha256={expected_signature}"
+
+                        # Step 3: Verify signature using constant-time comparison
+                        if not hmac.compare_digest(signature, expected_signature_header):
+                            return jsonify({"error": "Invalid signature"}), 401
+
+                        # Step 4: Process the verified webhook payload
+                        data = request.get_json()
+                        batch_info = data["batch_info"]
+
+                        app.logger.info(f"✓ Verified webhook: {webhook_id}")
+                        app.logger.info(f"  Batch ID: {batch_info['batch_id']}")
+                        app.logger.info(f"  Status: {batch_info['status']}")
+
+                        # Process completed jobs
+                        for job in batch_info["jobs"]:
+                            if job["status"] == "completed":
+                                app.logger.info(f"  ✓ {job['job_id']}: {job['signed_cog_url']}")
+                                # Download GeoTIFF, update database, send notifications, etc.
+                            elif job["status"] == "failed":
+                                app.logger.error(f"  ✗ {job['job_id']}: {job['error_message']}")
+                                # Log error, send alert, retry job, etc.
+
+                        return jsonify({
+                            "status": "received",
+                            "batch_id": batch_info["batch_id"]
+                        }), 200
+              parameters:
+                - name: Spatialise-Webhook-ID
+                  in: header
+                  required: true
+                  schema:
+                    type: string
+                    description: Unique ID for this webhook delivery, useful for deduplication
+                    examples:
+                      - 550e8400-e29b-41d4-a716-446655440000
+                    title: Spatialise-Webhook-Id
+                  description: Unique ID for this webhook delivery, useful for deduplication
+                - name: Spatialise-Timestamp
+                  in: header
+                  required: true
+                  schema:
+                    type: string
+                    description: ISO 8601 timestamp of when the webhook was sent
+                    examples:
+                      - "2025-07-29T12:34:56.789Z"
+                    title: Spatialise-Timestamp
+                  description: ISO 8601 timestamp of when the webhook was sent
+                - name: Spatialise-Signature
+                  in: header
+                  required: true
+                  schema:
+                    type: string
+                    pattern: ^sha256=[a-f0-9]{64}$
+                    description: 'HMAC-SHA256 signature of timestamp + ''.'' + request body using the Webhook-Secret as the key. Format: sha256=<hex-digest>'
+                    examples:
+                      - sha256=5d61821c3590d7c1ccc3a8a25f2c4e3b9c7f8e1a9d8b7c6a5f4e3d2c1b0a9f8e
+                    title: Spatialise-Signature
+                  description: 'HMAC-SHA256 signature of timestamp + ''.'' + request body using the Webhook-Secret as the key. Format: sha256=<hex-digest>'
+                - name: User-Agent
+                  in: header
+                  required: true
+                  schema:
+                    type: string
+                    pattern: ^Spatialise-Webhook/1\.0$
+                    description: User agent identifying the webhook sender
+                    title: User-Agent
+                  description: User agent identifying the webhook sender
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/BatchCompletionCallback'
+              responses:
+                "200":
+                  description: Successful Response
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        additionalProperties: true
+                        title: Response Batch Completion Notification  Request Body  Webhook Url  Post
+                "422":
+                  description: Validation Error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/HTTPValidationError'
+      responses:
+        "202":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        "409":
+          description: Conflict - Idempotency key reused with different request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdempotencyError'
+        "429":
+          description: Rate Limit Exceeded
+          headers:
+            X-RateLimit-Area-Limit:
+              description: Maximum hectares allowed per day
+              schema:
+                type: integer
+                example: 5000
+            X-RateLimit-Area-Remaining:
+              description: Hectares remaining for today
+              schema:
+                type: number
+                example: 85.5
+            X-RateLimit-Jobs-Limit:
+              description: Maximum jobs allowed per day
+              schema:
+                type: integer
+                example: 1000
+            X-RateLimit-Jobs-Remaining:
+              description: Jobs remaining for today
+              schema:
+                type: integer
+                example: 450
+            X-RateLimit-Reset:
+              description: UTC timestamp when limits reset
+              schema:
+                type: string
+                format: date-time
+                example: "2025-07-30T00:00:00Z"
+            Retry-After:
+              description: Seconds until rate limit reset
+              schema:
+                type: integer
+                example: 3600
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/batch/{batch_id}/status:
+    get:
+      tags:
+        - batch
+      summary: Get Batch Status
+      description: |-
+        Retrieve the current status of a soil organic carbon prediction batch.
+
+        Returns detailed information about the batch processing progress, including the status of individual prediction jobs. Once jobs are completed, result URLs provide access to cloud-optimized GeoTIFF files.
+
+        **Pagination:**
+        Job results are paginated with a default limit of 100 jobs per page. Use the `cursor` parameter with the `next_cursor` value from the previous response to fetch subsequent pages.
+
+        The client identity is determined from the Authorization token.
+
+        Args:
+            request: The FastAPI request object
+            batch_id: The batch ID to query
+            limit: Maximum number of jobs to return (default: 100, max: 100)
+            cursor: Pagination cursor from previous response (Phase 1: ignored)
+            token: The validated authentication token
+
+        Returns:
+            BatchStatusResponse: The batch status and paginated job details
+
+        Raises:
+            HTTPException: If batch not found or query fails
+      operationId: get_batch_status_v1_batch__batch_id__status_get
+      x-code-samples:
+        - lang: python
+          label: Poll for Batch Completion
+          source: |
+            import os
+            import time
+            from spatialise import SpatialiseSoilPrediction
+
+            client = SpatialiseSoilPrediction(
+                api_key=os.environ.get("SPATIALISE_API_KEY"),
+            )
+
+            batch_id = "your-batch-id"
+
+            # Poll until batch completes
+            max_retries = 60
+            retry_delay = 5  # seconds
+
+            for attempt in range(max_retries):
+                status = client.batch.retrieve_status(batch_id)
+
+                print(f"[{attempt * retry_delay}s] Status: {status.status}")
+                print(f"  Completed: {status.completed_jobs}/{status.total_jobs}")
+                print(f"  Failed: {status.failed_jobs}")
+                print(f"  Pending: {status.pending_jobs}")
+
+                if status.status in ["completed", "failed", "partially_failed"]:
+                    print("\nBatch processing complete!")
+                    break
+
+                time.sleep(retry_delay)
+
+            # Process results
+            for job in status.jobs:
+                if job.status == "completed" and job.signed_cog_url:
+                    print(f"✓ Job {job.job_id}")
+                    print(f"  GeoTIFF: {job.signed_cog_url}")
+                    print(f"  Valid until: {job.signed_cog_url_created_at}")
+                elif job.status == "failed":
+                    print(f"✗ Job {job.job_id}: {job.error_message}")
+        - lang: python
+          label: Handle Pagination
+          source: |
+            import os
+            from spatialise import SpatialiseSoilPrediction
+
+            client = SpatialiseSoilPrediction(
+                api_key=os.environ.get("SPATIALISE_API_KEY"),
+            )
+
+            batch_id = "your-batch-id"
+            all_jobs = []
+
+            # Fetch all pages
+            cursor = None
+            while True:
+                status = client.batch.retrieve_status(
+                    batch_id,
+                    limit=100,
+                    cursor=cursor,
+                )
+
+                # Collect jobs from this page
+                all_jobs.extend(status.jobs)
+
+                print(f"Fetched {len(status.jobs)} jobs")
+                print(f"Total collected: {len(all_jobs)}/{status.total_jobs}")
+
+                # Check if more pages exist
+                if not status.has_more:
+                    break
+
+                # Get next page cursor
+                cursor = status.next_cursor
+
+            print(f"\n✓ Retrieved all {len(all_jobs)} jobs")
+
+            # Process all jobs
+            completed = [j for j in all_jobs if j.status == "completed"]
+            failed = [j for j in all_jobs if j.status == "failed"]
+
+            print(f"Completed: {len(completed)}")
+            print(f"Failed: {len(failed)}")
+
+            # Download URLs
+            for job in completed:
+                if job.signed_cog_url:
+                    print(f"Download: curl -o {job.job_id}.tif '{job.signed_cog_url}'")
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Batch Id
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+            title: Limit
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Cursor
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse-Output'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    BatchCompletionCallback:
+      properties:
+        event_type:
+          type: string
+          const: batch.completed
+          title: Event Type
+          description: Event type identifier
+          default: batch.completed
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+          description: Event timestamp
+        batch_info:
+          $ref: '#/components/schemas/BatchStatusResponse-Input'
+          description: Complete batch status information
+      type: object
+      required:
+        - timestamp
+        - batch_info
+      title: BatchCompletionCallback
+      description: Payload sent to the webhook URL upon batch completion.
+    BatchResponse:
+      properties:
+        batch_id:
+          type: string
+          title: Batch Id
+          description: Unique identifier for the batch
+        status:
+          $ref: '#/components/schemas/BatchStatus'
+          description: Current status of the batch
+        total_jobs:
+          type: integer
+          title: Total Jobs
+          description: Total number of jobs in the batch
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Batch creation timestamp
+        message:
+          type: string
+          title: Message
+          description: Status message
+        job_ids:
+          additionalProperties:
+            type: string
+          type: object
+          title: Job Ids
+          description: Mapping of job indices to job IDs
+          example:
+            "0": 550e8400-e29b-41d4-a716-446655440000-0000
+            "1": 550e8400-e29b-41d4-a716-446655440000-0001
+      type: object
+      required:
+        - batch_id
+        - status
+        - total_jobs
+        - created_at
+        - message
+        - job_ids
+      title: BatchResponse
+      description: Response after creating a batch.
+    BatchStatus:
+      type: string
+      enum:
+        - created
+        - processing
+        - completed
+        - failed
+        - partially_failed
+      title: BatchStatus
+      description: Status of a batch.
+    BatchStatusResponse-Input:
+      properties:
+        batch_id:
+          type: string
+          title: Batch Id
+          description: Unique identifier for the batch
+        status:
+          $ref: '#/components/schemas/BatchStatus'
+          description: Current status of the batch
+        total_jobs:
+          type: integer
+          title: Total Jobs
+          description: Total number of jobs in the batch
+        completed_jobs:
+          type: integer
+          title: Completed Jobs
+          description: Number of completed jobs
+        failed_jobs:
+          type: integer
+          title: Failed Jobs
+          description: Number of failed jobs
+        pending_jobs:
+          type: integer
+          title: Pending Jobs
+          description: Number of pending jobs
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Batch creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: Last update timestamp
+        jobs:
+          items:
+            $ref: '#/components/schemas/JobStatusInfo'
+          type: array
+          title: Jobs
+          description: Status of individual jobs
+        next_cursor:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Next Cursor
+          description: Cursor for fetching the next page. Null if no more pages.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more jobs to fetch
+      type: object
+      required:
+        - batch_id
+        - status
+        - total_jobs
+        - completed_jobs
+        - failed_jobs
+        - pending_jobs
+        - created_at
+        - updated_at
+        - jobs
+        - has_more
+      title: BatchStatusResponse
+      description: Response for batch status query.
+    BatchStatusResponse-Output:
+      properties:
+        batch_id:
+          type: string
+          title: Batch Id
+          description: Unique identifier for the batch
+        status:
+          $ref: '#/components/schemas/BatchStatus'
+          description: Current status of the batch
+        total_jobs:
+          type: integer
+          title: Total Jobs
+          description: Total number of jobs in the batch
+        completed_jobs:
+          type: integer
+          title: Completed Jobs
+          description: Number of completed jobs
+        failed_jobs:
+          type: integer
+          title: Failed Jobs
+          description: Number of failed jobs
+        pending_jobs:
+          type: integer
+          title: Pending Jobs
+          description: Number of pending jobs
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Batch creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: Last update timestamp
+        jobs:
+          items:
+            $ref: '#/components/schemas/JobStatusInfo'
+          type: array
+          title: Jobs
+          description: Status of individual jobs
+        next_cursor:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Next Cursor
+          description: Cursor for fetching the next page. Null if no more pages.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more jobs to fetch
+      type: object
+      required:
+        - batch_id
+        - status
+        - total_jobs
+        - completed_jobs
+        - failed_jobs
+        - pending_jobs
+        - created_at
+        - updated_at
+        - jobs
+        - has_more
+      title: BatchStatusResponse
+      description: Response for batch status query.
+    ClientBatchRequest:
+      properties:
+        jobs:
+          items:
+            $ref: '#/components/schemas/ClientPredictionJob'
+          type: array
+          minItems: 1
+          title: Jobs
+          description: List of prediction jobs
+        webhook_url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Webhook Url
+          description: Optional webhook URL for batch completion
+        metadata:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: "null"
+          title: Metadata
+          description: Optional metadata for the batch
+      type: object
+      required:
+        - jobs
+      title: ClientBatchRequest
+      description: Request to create a new batch of prediction jobs - as sent by client.
+    ClientPredictionJob:
+      properties:
+        year:
+          type: integer
+          maximum: 2025.0
+          minimum: 2018.0
+          title: Year
+          description: Year for prediction
+        polygon:
+          $ref: '#/components/schemas/GeoJSONPolygon'
+          description: GeoJSON polygon for the area
+      type: object
+      required:
+        - year
+        - polygon
+      title: ClientPredictionJob
+      description: Individual prediction job within a batch - as sent by client.
+    GeoJSONPolygon:
+      properties:
+        type:
+          type: string
+          const: Polygon
+          title: Type
+          description: GeoJSON geometry type - must be 'Polygon'
+          default: Polygon
+        coordinates:
+          items:
+            items:
+              items:
+                type: number
+              type: array
+            type: array
+          type: array
+          title: Coordinates
+          description: Array of linear rings, first is exterior, rest are holes
+      type: object
+      required:
+        - coordinates
+      title: GeoJSONPolygon
+      description: |-
+        GeoJSON Polygon with RFC 7946 validation.
+
+        A polygon is represented as an array of linear ring coordinate arrays,
+        where the first element represents the exterior ring, and any subsequent
+        elements represent interior rings (holes).
+
+        According to RFC 7946:
+        - Each ring must have at least 4 positions
+        - The first and last positions must be equivalent (ring is closed)
+        - Coordinates must be within valid bounds:
+          - Longitude: -180 to 180 degrees
+          - Latitude: -90 to 90 degrees
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IdempotencyError:
+      properties:
+        error:
+          type: string
+          const: idempotency_conflict
+          title: Error
+          description: Error type identifier
+          default: idempotency_conflict
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+          example: The provided idempotency key has already been used with a different request body
+      type: object
+      required:
+        - message
+      title: IdempotencyError
+      description: Error response for idempotency key conflict.
+    JobStatus:
+      type: string
+      enum:
+        - pending
+        - running
+        - completed
+        - failed
+        - cancelled
+      title: JobStatus
+      description: Status of a job within a batch - matches existing Firebase service.
+    JobStatusInfo:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+          description: Unique identifier for the job
+        status:
+          $ref: '#/components/schemas/JobStatus'
+          description: Current status of the job
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Job creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: Last update timestamp
+        error_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Error Message
+          description: Error message if job failed
+        signed_cog_url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Signed Cog Url
+          description: Temporary signed URL to download result Cloud Optimized GeoTIFF (COG). Valid for 6 hours.
+        signed_cog_url_created_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+          title: Signed Cog Url Created At
+          description: UTC timestamp when the signed COG URL was generated
+      type: object
+      required:
+        - job_id
+        - status
+        - created_at
+        - updated_at
+      title: JobStatusInfo
+      description: Status information for a single job.
+    RateLimitError:
+      properties:
+        error:
+          type: string
+          const: rate_limit_exceeded
+          title: Error
+          description: Error type identifier
+          default: rate_limit_exceeded
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+      type: object
+      required:
+        - message
+      title: RateLimitError
+      description: Error response for rate limit exceeded.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: Bearer token authentication
+      scheme: bearer
+servers:
+  - url: https://soilpredict.api.spatialise.dev
+    description: Spatialise API
+security:
+  - bearerAuth: []

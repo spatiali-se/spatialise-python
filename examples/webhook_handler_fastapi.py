@@ -18,8 +18,9 @@ For production, deploy this to a proper web server (e.g., Heroku, AWS, GCP).
 import os
 import hmac
 import hashlib
-from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, Request, HTTPException, Header
+from typing import Any, Dict, List, Optional
+
+from fastapi import Header, FastAPI, Request, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI(title="Spatialise Webhook Handler")
@@ -62,9 +63,7 @@ async def handle_batch_complete(
     body = await request.body()
 
     # Compute expected signature
-    expected_signature = hmac.new(
-        WEBHOOK_SECRET.encode(), body, hashlib.sha256
-    ).hexdigest()
+    expected_signature = hmac.new(WEBHOOK_SECRET.encode(), body, hashlib.sha256).hexdigest()
 
     # Verify signature using constant-time comparison
     if not hmac.compare_digest(x_spatialise_signature, expected_signature):

@@ -12,6 +12,7 @@ To handle webhook callbacks, you'll need a separate web server (e.g., Flask, Fas
 """
 
 import os
+
 from spatialise import SpatialiseSoilPrediction
 
 # Initialize the client
@@ -80,10 +81,7 @@ def create_batch_with_webhook():
     print(f"  Total jobs: {batch.total_jobs}")
     print(f"  Webhook URL: {WEBHOOK_URL}")
     print()
-    print(
-        "When the batch completes, Spatialise will POST to your webhook URL "
-        "with the batch results."
-    )
+    print("When the batch completes, Spatialise will POST to your webhook URL with the batch results.")
 
     return batch
 

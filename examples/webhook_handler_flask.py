@@ -18,7 +18,8 @@ For production, deploy this to a proper web server (e.g., Heroku, AWS, GCP).
 import os
 import hmac
 import hashlib
-from flask import Flask, request, jsonify
+
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -39,9 +40,7 @@ def handle_batch_complete():
     payload = request.get_data()
 
     # Compute expected signature
-    expected_signature = hmac.new(
-        WEBHOOK_SECRET.encode(), payload, hashlib.sha256
-    ).hexdigest()
+    expected_signature = hmac.new(WEBHOOK_SECRET.encode(), payload, hashlib.sha256).hexdigest()
 
     # Verify signature using constant-time comparison
     if not hmac.compare_digest(signature, expected_signature):

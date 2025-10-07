@@ -1,4 +1,4 @@
 configured_endpoints: 3
-openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/spatialise%2Fspatialise-soil-prediction-bcb04011f7a20cc54d23cb35b08034f1d19cbf211b37925193c64bafb08251dc.yml
-openapi_spec_hash: 643430acafa7dad3c766b612c533e773
+openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/spatialise%2Fspatialise-soil-prediction-f98fdaf382bb83e06fc002e66168445de88444cf05ee84296452d387a76815b8.yml
+openapi_spec_hash: 19f311fd51309f81c218aa3f1fb622a4
 config_hash: 086257a034533c7803c2e781da63409e

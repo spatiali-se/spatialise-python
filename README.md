@@ -3,236 +3,38 @@
 <!-- prettier-ignore -->
 [![PyPI version](https://img.shields.io/pypi/v/spatialise.svg?label=pypi%20(stable))](https://pypi.org/project/spatialise/)
 
-The Spatialise Soil Prediction Python library provides convenient access to the Spatialise Soil Prediction REST API from any Python 3.8+
-application. The library includes type definitions for all request params and response fields,
-and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
+The Spatialise Soil Prediction Python library provides convenient access to the Spatialise Soil Prediction REST API from any Python 3.8+ application. The library includes type definitions for all request params and response fields, and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
 It is generated with [Stainless](https://www.stainless.com/).
-
-## Documentation
-
-The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
 ```sh
-# install from PyPI
 pip install --pre spatialise
 ```
 
-## Usage
+## Quick Start
 
-The full API of this library can be found in [api.md](api.md).
+Get started with soil organic carbon predictions in under 5 minutes:
 
 ```python
 import os
 from spatialise import SpatialiseSoilPrediction
 
-client = SpatialiseSoilPrediction(
-    api_key=os.environ.get("SPATIALISE_API_KEY"),  # This is the default and can be omitted
-)
-
-batch = client.batch.create(
-    jobs=[
-        {
-            "year": 2021,
-            "polygon": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [6.7, 52.8],
-                        [6.70074, 52.8],
-                        [6.70074, 52.80045],
-                        [6.7, 52.80045],
-                        [6.7, 52.8],
-                    ]
-                ],
-            },
-        },
-        {
-            "year": 2022,
-            "polygon": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [6.7, 52.8],
-                        [6.70074, 52.8],
-                        [6.70074, 52.80045],
-                        [6.7, 52.80045],
-                        [6.7, 52.8],
-                    ]
-                ],
-            },
-        },
-    ],
-    metadata={
-        "project": "Drenthe Soil Analysis",
-        "location": "Netherlands",
-    },
-)
-print(batch.batch_id)
-```
-
-While you can provide an `api_key` keyword argument,
-we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
-to add `SPATIALISE_API_KEY="My API Key"` to your `.env` file
-so that your API Key is not stored in source control.
-
-## Async usage
-
-Simply import `AsyncSpatialiseSoilPrediction` instead of `SpatialiseSoilPrediction` and use `await` with each API call:
-
-```python
-import os
-import asyncio
-from spatialise import AsyncSpatialiseSoilPrediction
-
-client = AsyncSpatialiseSoilPrediction(
-    api_key=os.environ.get("SPATIALISE_API_KEY"),  # This is the default and can be omitted
-)
-
-
-async def main() -> None:
-    batch = await client.batch.create(
-        jobs=[
-            {
-                "year": 2021,
-                "polygon": {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [6.7, 52.8],
-                            [6.70074, 52.8],
-                            [6.70074, 52.80045],
-                            [6.7, 52.80045],
-                            [6.7, 52.8],
-                        ]
-                    ],
-                },
-            },
-            {
-                "year": 2022,
-                "polygon": {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [6.7, 52.8],
-                            [6.70074, 52.8],
-                            [6.70074, 52.80045],
-                            [6.7, 52.80045],
-                            [6.7, 52.8],
-                        ]
-                    ],
-                },
-            },
-        ],
-        metadata={
-            "project": "Drenthe Soil Analysis",
-            "location": "Netherlands",
-        },
+# Best practice: Load API key from environment variables
+api_key = os.environ.get("SPATIALISE_API_KEY")
+if not api_key:
+    raise ValueError(
+        "SPATIALISE_API_KEY environment variable not set. "
+        "Get your API key from https://spatialise.dev"
     )
-    print(batch.batch_id)
 
+# Initialize the client
+client = SpatialiseSoilPrediction(api_key=api_key)
 
-asyncio.run(main())
-```
-
-Functionality between the synchronous and asynchronous clients is otherwise identical.
-
-### With aiohttp
-
-By default, the async client uses `httpx` for HTTP requests. However, for improved concurrency performance you may also use `aiohttp` as the HTTP backend.
-
-You can enable this by installing `aiohttp`:
-
-```sh
-# install from PyPI
-pip install --pre spatialise[aiohttp]
-```
-
-Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:
-
-```python
-import asyncio
-from spatialise import DefaultAioHttpClient
-from spatialise import AsyncSpatialiseSoilPrediction
-
-
-async def main() -> None:
-    async with AsyncSpatialiseSoilPrediction(
-        api_key="My API Key",
-        http_client=DefaultAioHttpClient(),
-    ) as client:
-        batch = await client.batch.create(
-            jobs=[
-                {
-                    "year": 2021,
-                    "polygon": {
-                        "type": "Polygon",
-                        "coordinates": [
-                            [
-                                [6.7, 52.8],
-                                [6.70074, 52.8],
-                                [6.70074, 52.80045],
-                                [6.7, 52.80045],
-                                [6.7, 52.8],
-                            ]
-                        ],
-                    },
-                },
-                {
-                    "year": 2022,
-                    "polygon": {
-                        "type": "Polygon",
-                        "coordinates": [
-                            [
-                                [6.7, 52.8],
-                                [6.70074, 52.8],
-                                [6.70074, 52.80045],
-                                [6.7, 52.80045],
-                                [6.7, 52.8],
-                            ]
-                        ],
-                    },
-                },
-            ],
-            metadata={
-                "project": "Drenthe Soil Analysis",
-                "location": "Netherlands",
-            },
-        )
-        print(batch.batch_id)
-
-
-asyncio.run(main())
-```
-
-## Using types
-
-Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typing.html#typing.TypedDict). Responses are [Pydantic models](https://docs.pydantic.dev) which also provide helper methods for things like:
-
-- Serializing back into JSON, `model.to_json()`
-- Converting to a dictionary, `model.to_dict()`
-
-Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
-
-## Handling errors
-
-When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `spatialise.APIConnectionError` is raised.
-
-When the API returns a non-success status code (that is, 4xx or 5xx
-response), a subclass of `spatialise.APIStatusError` is raised, containing `status_code` and `response` properties.
-
-All errors inherit from `spatialise.APIError`.
-
-```python
-import spatialise
-from spatialise import SpatialiseSoilPrediction
-
-client = SpatialiseSoilPrediction()
-
+# Submit a batch of soil prediction jobs
 try:
-    client.batch.create(
+    batch = client.batch.create(
         jobs=[
             {
                 "year": 2021,
@@ -250,305 +52,454 @@ try:
                 },
             }
         ],
+        metadata={
+            "project": "Quick Start Example",
+            "location": "Netherlands",
+        },
     )
-except spatialise.APIConnectionError as e:
-    print("The server could not be reached")
-    print(e.__cause__)  # an underlying Exception, likely raised within httpx.
-except spatialise.RateLimitError as e:
-    print("A 429 status code was received; we should back off a bit.")
-except spatialise.APIStatusError as e:
-    print("Another non-200-range status code was received")
-    print(e.status_code)
-    print(e.response)
+
+    print(f"✓ Batch submitted successfully!")
+    print(f"  Batch ID: {batch.batch_id}")
+    print(f"  Status: {batch.status}")
+    print(f"  Total jobs: {batch.total_jobs}")
+
+except Exception as e:
+    print(f"✗ Error: {e}")
 ```
 
-Error codes are as follows:
+**Next steps:** Use the batch ID to [check status](#checking-batch-status) or set up [webhooks](#using-webhooks-for-notifications) for automatic notifications.
 
-| Status Code | Error Type                 |
-| ----------- | -------------------------- |
-| 400         | `BadRequestError`          |
-| 401         | `AuthenticationError`      |
-| 403         | `PermissionDeniedError`    |
-| 404         | `NotFoundError`            |
-| 422         | `UnprocessableEntityError` |
-| 429         | `RateLimitError`           |
-| >=500       | `InternalServerError`      |
-| N/A         | `APIConnectionError`       |
+## Common Tasks
 
-### Retries
+### Checking Batch Status
 
-Certain errors are automatically retried 2 times by default, with a short exponential backoff.
-Connection errors (for example, due to a network connectivity problem), 408 Request Timeout, 409 Conflict,
-429 Rate Limit, and >=500 Internal errors are all retried by default.
-
-You can use the `max_retries` option to configure or disable retry settings:
+Check the status of your batch and retrieve results:
 
 ```python
-from spatialise import SpatialiseSoilPrediction
+# Get batch status
+status = client.batch.retrieve_status(batch_id="batch_abc123")
 
-# Configure the default for all requests:
-client = SpatialiseSoilPrediction(
-    # default is 2
-    max_retries=0,
-)
+print(f"Batch {status.batch_id}: {status.status}")
+print(f"Progress: {status.completed_jobs}/{status.total_jobs} jobs completed")
 
-# Or, configure per-request:
-client.with_options(max_retries=5).batch.create(
-    jobs=[
-        {
-            "year": 2021,
-            "polygon": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [6.7, 52.8],
-                        [6.70074, 52.8],
-                        [6.70074, 52.80045],
-                        [6.7, 52.80045],
-                        [6.7, 52.8],
-                    ]
-                ],
-            },
-        }
-    ],
-)
+# Access individual job results
+for job in status.jobs:
+    if job.status == "completed":
+        print(f"  ✓ Job {job.job_id}: {job.signed_cog_url}")
+    elif job.status == "failed":
+        print(f"  ✗ Job {job.job_id}: {job.error_message}")
 ```
 
-### Timeouts
+### Polling Until Completion
 
-By default requests time out after 1 minute. You can configure this with a `timeout` option,
-which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration) object:
+Poll for batch completion with proper timing and error handling:
 
 ```python
-from spatialise import SpatialiseSoilPrediction
-
-# Configure the default for all requests:
-client = SpatialiseSoilPrediction(
-    # 20 seconds (default is 1 minute)
-    timeout=20.0,
-)
-
-# More granular control:
-client = SpatialiseSoilPrediction(
-    timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
-)
-
-# Override per-request:
-client.with_options(timeout=5.0).batch.create(
-    jobs=[
-        {
-            "year": 2021,
-            "polygon": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [6.7, 52.8],
-                        [6.70074, 52.8],
-                        [6.70074, 52.80045],
-                        [6.7, 52.80045],
-                        [6.7, 52.8],
-                    ]
-                ],
-            },
-        }
-    ],
-)
-```
-
-On timeout, an `APITimeoutError` is thrown.
-
-Note that requests that time out are [retried twice by default](#retries).
-
-## Advanced
-
-### Logging
-
-We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
-
-You can enable logging by setting the environment variable `SPATIALISE_SOIL_PREDICTION_LOG` to `info`.
-
-```shell
-$ export SPATIALISE_SOIL_PREDICTION_LOG=info
-```
-
-Or to `debug` for more verbose logging.
-
-### How to tell whether `None` means `null` or missing
-
-In an API response, a field may be explicitly `null`, or missing entirely; in either case, its value is `None` in this library. You can differentiate the two cases with `.model_fields_set`:
-
-```py
-if response.my_field is None:
-  if 'my_field' not in response.model_fields_set:
-    print('Got json like {}, without a "my_field" key present at all.')
-  else:
-    print('Got json like {"my_field": null}.')
-```
-
-### Accessing raw response data (e.g. headers)
-
-The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
-
-```py
+import time
 from spatialise import SpatialiseSoilPrediction
 
 client = SpatialiseSoilPrediction()
-response = client.batch.with_raw_response.create(
-    jobs=[{
-        "year": 2021,
-        "polygon": {
-            "type": "Polygon",
-            "coordinates": [[[6.7, 52.8], [6.70074, 52.8], [6.70074, 52.80045], [6.7, 52.80045], [6.7, 52.8]]],
-        },
-    }],
-)
-print(response.headers.get('X-My-Header'))
 
-batch = response.parse()  # get the object that `batch.create()` would have returned
-print(batch.batch_id)
+def wait_for_batch(batch_id: str, timeout: int = 600, poll_interval: int = 10):
+    """
+    Poll batch status until completion or timeout.
+
+    Args:
+        batch_id: The batch ID to monitor
+        timeout: Maximum time to wait in seconds (default: 10 minutes)
+        poll_interval: Time between status checks in seconds (default: 10s)
+
+    Returns:
+        Final batch status response
+    """
+    start_time = time.time()
+
+    while True:
+        # Check if we've exceeded timeout
+        if time.time() - start_time > timeout:
+            raise TimeoutError(f"Batch {batch_id} did not complete within {timeout}s")
+
+        # Get current status
+        status = client.batch.retrieve_status(batch_id)
+
+        # Check for terminal states
+        if status.status == "completed":
+            print(f"✓ Batch completed: {status.completed_jobs} jobs successful")
+            return status
+        elif status.status == "failed":
+            print(f"✗ Batch failed: {status.failed_jobs} jobs failed")
+            return status
+
+        # Still processing - wait before next check
+        print(f"  Processing: {status.completed_jobs}/{status.total_jobs} completed...")
+        time.sleep(poll_interval)
+
+# Usage
+batch = client.batch.create(jobs=[...])
+final_status = wait_for_batch(batch.batch_id)
 ```
 
-These methods return an [`APIResponse`](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise/_response.py) object.
+### Using Webhooks for Notifications
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
-
-#### `.with_streaming_response`
-
-The above interface eagerly reads the full response body when you make the request, which may not always be what you want.
-
-To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
+Instead of polling, receive automatic notifications when your batch completes:
 
 ```python
-with client.batch.with_streaming_response.create(
-    jobs=[
-        {
-            "year": 2021,
-            "polygon": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [6.7, 52.8],
-                        [6.70074, 52.8],
-                        [6.70074, 52.80045],
-                        [6.7, 52.80045],
-                        [6.7, 52.8],
-                    ]
-                ],
-            },
-        }
-    ],
-) as response:
-    print(response.headers.get("X-My-Header"))
-
-    for line in response.iter_lines():
-        print(line)
-```
-
-The context manager is required so that the response will reliably be closed.
-
-### Making custom/undocumented requests
-
-This library is typed for convenient access to the documented API.
-
-If you need to access undocumented endpoints, params, or response properties, the library can still be used.
-
-#### Undocumented endpoints
-
-To make requests to undocumented endpoints, you can make requests using `client.get`, `client.post`, and other
-http verbs. Options on the client will be respected (such as retries) when making this request.
-
-```py
-import httpx
-
-response = client.post(
-    "/foo",
-    cast_to=httpx.Response,
-    body={"my_param": True},
+# Create batch with webhook configuration
+batch = client.batch.create(
+    jobs=[...],
+    webhook_url="https://your-domain.com/webhooks/spatialise",
+    webhook_secret="your-secret-key-here",
 )
 
-print(response.headers.get("x-foo"))
+print(f"Batch {batch.batch_id} created with webhook notification")
 ```
 
-#### Undocumented request params
+When the batch completes, Spatialise will POST to your webhook URL with the results. The request includes an `X-Spatialise-Signature` header for authentication.
 
-If you want to explicitly send an extra param, you can do so with the `extra_query`, `extra_body`, and `extra_headers` request
-options.
+**Complete webhook examples:**
+- [FastAPI webhook handler](./examples/webhook_handler_fastapi.py) - Production-ready with signature verification
+- [Flask webhook handler](./examples/webhook_handler_flask.py) - Simple Flask implementation
+- [Creating batches with webhooks](./examples/batch_prediction_webhook.py) - Full workflow example
 
-#### Undocumented response properties
+### Handling Paginated Results
 
-To access undocumented response properties, you can access the extra fields like `response.unknown_prop`. You
-can also get all the extra fields on the Pydantic model as a dict with
-[`response.model_extra`](https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_extra).
+When retrieving status for batches with many jobs, results are paginated:
 
-### Configuring the HTTP client
+```python
+def get_all_jobs(batch_id: str):
+    """Retrieve all jobs from a batch, handling pagination."""
+    all_jobs = []
+    cursor = None
 
-You can directly override the [httpx client](https://www.python-httpx.org/api/#client) to customize it for your use case, including:
+    while True:
+        # Fetch page of results
+        response = client.batch.retrieve_status(
+            batch_id=batch_id,
+            limit=100,  # Max 100 jobs per page
+            cursor=cursor,
+        )
 
-- Support for [proxies](https://www.python-httpx.org/advanced/proxies/)
-- Custom [transports](https://www.python-httpx.org/advanced/transports/)
-- Additional [advanced](https://www.python-httpx.org/advanced/clients/) functionality
+        all_jobs.extend(response.jobs)
+
+        # Check if there are more pages
+        if not response.next_cursor:
+            break
+
+        cursor = response.next_cursor
+
+    return all_jobs
+
+# Usage
+all_jobs = get_all_jobs("batch_abc123")
+print(f"Retrieved {len(all_jobs)} total jobs")
+```
+
+### Error Handling and Recovery
+
+Handle API errors gracefully with specific exception handling:
+
+```python
+import spatialise
+from spatialise import SpatialiseSoilPrediction
+
+client = SpatialiseSoilPrediction()
+
+try:
+    batch = client.batch.create(jobs=[...])
+
+except spatialise.AuthenticationError:
+    print("✗ Invalid API key. Check your SPATIALISE_API_KEY")
+
+except spatialise.RateLimitError as e:
+    print(f"✗ Rate limit exceeded. Retry after: {e.response.headers.get('Retry-After')}s")
+    # Implement exponential backoff here
+
+except spatialise.BadRequestError as e:
+    print(f"✗ Invalid request: {e.message}")
+    print(f"   Status: {e.status_code}")
+    # Log error details for debugging
+
+except spatialise.APIConnectionError as e:
+    print(f"✗ Network error: {e.__cause__}")
+    # Retry with exponential backoff
+
+except spatialise.APIStatusError as e:
+    print(f"✗ API error {e.status_code}: {e.message}")
+    # Log and alert for investigation
+```
+
+**Error hierarchy:**
+- `APIError` - Base class for all API errors
+- `APIConnectionError` - Network/connection issues
+- `APIStatusError` - Non-2xx HTTP responses
+  - `BadRequestError` (400)
+  - `AuthenticationError` (401)
+  - `PermissionDeniedError` (403)
+  - `NotFoundError` (404)
+  - `UnprocessableEntityError` (422)
+  - `RateLimitError` (429)
+  - `InternalServerError` (500+)
+
+### Using the Async Client
+
+For high-concurrency workloads, use `AsyncSpatialiseSoilPrediction`:
+
+```python
+import asyncio
+from spatialise import AsyncSpatialiseSoilPrediction
+
+async def main():
+    client = AsyncSpatialiseSoilPrediction()
+
+    # Submit batch asynchronously
+    batch = await client.batch.create(
+        jobs=[
+            {
+                "year": 2021,
+                "polygon": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [6.7, 52.8],
+                            [6.70074, 52.8],
+                            [6.70074, 52.80045],
+                            [6.7, 52.80045],
+                            [6.7, 52.8],
+                        ]
+                    ],
+                },
+            }
+        ]
+    )
+
+    print(f"Batch ID: {batch.batch_id}")
+
+    # Check status asynchronously
+    status = await client.batch.retrieve_status(batch.batch_id)
+    print(f"Status: {status.status}")
+
+asyncio.run(main())
+```
+
+**Performance boost with aiohttp:**
+
+```sh
+pip install --pre spatialise[aiohttp]
+```
+
+```python
+from spatialise import AsyncSpatialiseSoilPrediction, DefaultAioHttpClient
+
+async with AsyncSpatialiseSoilPrediction(
+    http_client=DefaultAioHttpClient()
+) as client:
+    batch = await client.batch.create(jobs=[...])
+```
+
+## Advanced Features
+
+### Configuring Retries
+
+Customize retry behavior for failed requests:
+
+```python
+from spatialise import SpatialiseSoilPrediction
+
+# Configure default retries for all requests
+client = SpatialiseSoilPrediction(
+    max_retries=5,  # Default is 2
+)
+
+# Or configure per-request
+client.with_options(max_retries=0).batch.create(jobs=[...])
+```
+
+By default, the following errors are retried with exponential backoff:
+- Connection errors (network issues)
+- 408 Request Timeout
+- 409 Conflict
+- 429 Rate Limit
+- 500+ Internal Server Errors
+
+### Configuring Timeouts
+
+Set request timeout limits:
+
+```python
+import httpx
+from spatialise import SpatialiseSoilPrediction
+
+# Simple timeout (in seconds)
+client = SpatialiseSoilPrediction(timeout=20.0)
+
+# Granular timeout control
+client = SpatialiseSoilPrediction(
+    timeout=httpx.Timeout(
+        connect=5.0,   # Time to establish connection
+        read=10.0,     # Time to read response
+        write=10.0,    # Time to write request
+        pool=5.0,      # Time to acquire connection from pool
+    )
+)
+
+# Per-request timeout override
+client.with_options(timeout=30.0).batch.create(jobs=[...])
+```
+
+### Accessing Raw Response Data
+
+Access HTTP headers and raw response data:
+
+```python
+from spatialise import SpatialiseSoilPrediction
+
+client = SpatialiseSoilPrediction()
+
+# Get raw response object
+response = client.batch.with_raw_response.create(jobs=[...])
+
+print(f"Rate limit remaining: {response.headers.get('X-RateLimit-Remaining')}")
+print(f"Request ID: {response.headers.get('X-Request-ID')}")
+
+# Parse response body
+batch = response.parse()
+print(f"Batch ID: {batch.batch_id}")
+```
+
+### Streaming Responses
+
+Stream large responses without loading entire body into memory:
+
+```python
+with client.batch.with_streaming_response.create(jobs=[...]) as response:
+    print(f"Request ID: {response.headers.get('X-Request-ID')}")
+
+    # Stream response body
+    for chunk in response.iter_bytes():
+        # Process chunk
+        pass
+```
+
+### Custom HTTP Client Configuration
+
+Customize the underlying HTTP client for proxies, custom transports, etc.:
 
 ```python
 import httpx
 from spatialise import SpatialiseSoilPrediction, DefaultHttpxClient
 
 client = SpatialiseSoilPrediction(
-    # Or use the `SPATIALISE_SOIL_PREDICTION_BASE_URL` env var
-    base_url="http://my.test.server.example.com:8083",
     http_client=DefaultHttpxClient(
-        proxy="http://my.test.proxy.example.com",
+        proxy="http://proxy.example.com:8080",
         transport=httpx.HTTPTransport(local_address="0.0.0.0"),
-    ),
+    )
 )
 ```
 
-You can also customize the client on a per-request basis by using `with_options()`:
+### Type Safety and IDE Support
+
+All request parameters use TypedDicts and responses are Pydantic models:
 
 ```python
-client.with_options(http_client=DefaultHttpxClient(...))
+from spatialise.types import BatchCreateParams
+
+# Type-safe request parameters
+params: BatchCreateParams = {
+    "jobs": [
+        {
+            "year": 2021,
+            "polygon": {
+                "type": "Polygon",
+                "coordinates": [[[6.7, 52.8], [6.70074, 52.8], ...]],
+            },
+        }
+    ],
+    "metadata": {"project": "Analysis"},
+}
+
+batch = client.batch.create(**params)
+
+# Pydantic model methods
+batch_json = batch.to_json()  # Serialize to JSON
+batch_dict = batch.to_dict()  # Convert to dictionary
 ```
 
-### Managing HTTP resources
+For type checking in VS Code, set `python.analysis.typeCheckingMode` to `basic`.
 
-By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
+## API Reference
 
-```py
-from spatialise import SpatialiseSoilPrediction
+For complete API documentation including all methods, parameters, and return types:
 
-with SpatialiseSoilPrediction() as client:
-  # make requests here
-  ...
+- **[Full API Reference](api.md)** - Complete method signatures and parameter documentation
+- **[Example Scripts](./examples/)** - Working code examples for common workflows
+- **[Type Definitions](./src/spatialise/types/)** - Request and response type definitions
 
-# HTTP client is now closed
+## Configuration
+
+### API Key
+
+Set your API key via environment variable (recommended):
+
+```bash
+export SPATIALISE_API_KEY='your-api-key-here'
 ```
 
-## Versioning
+Or pass directly to the client:
 
-This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
+```python
+client = SpatialiseSoilPrediction(api_key="your-api-key-here")
+```
 
-1. Changes that only affect static types, without breaking runtime behavior.
-2. Changes to library internals which are technically public but not intended or documented for external use. _(Please open a GitHub issue to let us know if you are relying on such internals.)_
-3. Changes that we do not expect to impact the vast majority of users in practice.
+### Base URL
 
-We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
+Override the API base URL (useful for testing):
 
-We are keen for your feedback; please open an [issue](https://www.github.com/spatiali-se/spatialise-python/issues) with questions, bugs, or suggestions.
+```bash
+export SPATIALISE_SOIL_PREDICTION_BASE_URL='https://custom.api.example.com'
+```
 
-### Determining the installed version
+### Logging
 
-If you've upgraded to the latest version but aren't seeing any new features you were expecting then your python environment is likely still using an older version.
+Enable debug logging:
 
-You can determine the version that is being used at runtime with:
+```bash
+export SPATIALISE_SOIL_PREDICTION_LOG=debug
+```
 
-```py
-import spatialise
-print(spatialise.__version__)
+Or in Python:
+
+```python
+import logging
+logging.getLogger("spatialise").setLevel(logging.DEBUG)
 ```
 
 ## Requirements
 
 Python 3.8 or higher.
 
+## Versioning
+
+This package follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
+
+1. Changes that only affect static types, without breaking runtime behavior
+2. Changes to library internals which are technically public but not intended or documented for external use
+3. Changes that we do not expect to impact the vast majority of users in practice
+
+We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
+
+**Check your installed version:**
+
+```python
+import spatialise
+print(spatialise.__version__)
+```
+
 ## Contributing
 
 See [the contributing documentation](./CONTRIBUTING.md).
+
+## Support
+
+- **Issues:** [GitHub Issues](https://www.github.com/spatiali-se/spatialise-python/issues)
+- **Documentation:** [Full API Reference](api.md)
+- **Examples:** [Example Scripts](./examples/)

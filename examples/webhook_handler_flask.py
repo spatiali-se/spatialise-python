@@ -66,7 +66,7 @@ def handle_batch_complete():
 
         if job_status == "completed":
             cog_url = job.get("signed_cog_url")
-            app.logger.info(f"  ✓ Job {job_id}: {cog_url}")
+            app.logger.info(f"  Job {job_id}: {cog_url}")
 
             # Here you could:
             # - Download the GeoTIFF
@@ -76,7 +76,7 @@ def handle_batch_complete():
 
         elif job_status == "failed":
             error = job.get("error_message")
-            app.logger.error(f"  ✗ Job {job_id}: {error}")
+            app.logger.error(f"  FAILED Job {job_id}: {error}")
 
             # Here you could:
             # - Log the error

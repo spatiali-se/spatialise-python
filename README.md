@@ -58,13 +58,13 @@ try:
         },
     )
 
-    print(f"✓ Batch submitted successfully!")
+    print(f"Batch submitted successfully!")
     print(f"  Batch ID: {batch.batch_id}")
     print(f"  Status: {batch.status}")
     print(f"  Total jobs: {batch.total_jobs}")
 
 except Exception as e:
-    print(f"✗ Error: {e}")
+    print(f"Error: {e}")
 ```
 
 **Next steps:** Use the batch ID to [check status](#checking-batch-status) or set up [webhooks](#using-webhooks-for-notifications) for automatic notifications.
@@ -85,9 +85,9 @@ print(f"Progress: {status.completed_jobs}/{status.total_jobs} jobs completed")
 # Access individual job results
 for job in status.jobs:
     if job.status == "completed":
-        print(f"  ✓ Job {job.job_id}: {job.signed_cog_url}")
+        print(f"  Job {job.job_id}: {job.signed_cog_url}")
     elif job.status == "failed":
-        print(f"  ✗ Job {job.job_id}: {job.error_message}")
+        print(f"  FAILED Job {job.job_id}: {job.error_message}")
 ```
 
 ### Polling Until Completion
@@ -124,10 +124,10 @@ def wait_for_batch(batch_id: str, timeout: int = 600, poll_interval: int = 10):
 
         # Check for terminal states
         if status.status == "completed":
-            print(f"✓ Batch completed: {status.completed_jobs} jobs successful")
+            print(f"Batch completed: {status.completed_jobs} jobs successful")
             return status
         elif status.status == "failed":
-            print(f"✗ Batch failed: {status.failed_jobs} jobs failed")
+            print(f"Batch failed: {status.failed_jobs} jobs failed")
             return status
 
         # Still processing - wait before next check
@@ -208,23 +208,23 @@ try:
     batch = client.batch.create(jobs=[...])
 
 except spatialise.AuthenticationError:
-    print("✗ Invalid API key. Check your SPATIALISE_API_KEY")
+    print("Invalid API key. Check your SPATIALISE_API_KEY")
 
 except spatialise.RateLimitError as e:
-    print(f"✗ Rate limit exceeded. Retry after: {e.response.headers.get('Retry-After')}s")
+    print(f"Rate limit exceeded. Retry after: {e.response.headers.get('Retry-After')}s")
     # Implement exponential backoff here
 
 except spatialise.BadRequestError as e:
-    print(f"✗ Invalid request: {e.message}")
+    print(f"Invalid request: {e.message}")
     print(f"   Status: {e.status_code}")
     # Log error details for debugging
 
 except spatialise.APIConnectionError as e:
-    print(f"✗ Network error: {e.__cause__}")
+    print(f"Network error: {e.__cause__}")
     # Retry with exponential backoff
 
 except spatialise.APIStatusError as e:
-    print(f"✗ API error {e.status_code}: {e.message}")
+    print(f"API error {e.status_code}: {e.message}")
     # Log and alert for investigation
 ```
 

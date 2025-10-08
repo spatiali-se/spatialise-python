@@ -78,7 +78,7 @@ async def handle_batch_complete(
     # Process each job
     for job in payload.jobs:
         if job.status == "completed":
-            print(f"  ✓ Job {job.job_id}: {job.signed_cog_url}")
+            print(f"  Job {job.job_id}: {job.signed_cog_url}")
 
             # Here you could:
             # - Download the GeoTIFF
@@ -87,7 +87,7 @@ async def handle_batch_complete(
             # - Trigger downstream processing
 
         elif job.status == "failed":
-            print(f"  ✗ Job {job.job_id}: {job.error_message}")
+            print(f"  FAILED Job {job.job_id}: {job.error_message}")
 
             # Here you could:
             # - Log the error

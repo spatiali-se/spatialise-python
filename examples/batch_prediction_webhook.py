@@ -76,7 +76,7 @@ def create_batch_with_webhook():
         },
     )
 
-    print(f"✓ Batch created: {batch.batch_id}")
+    print(f"Batch created: {batch.batch_id}")
     print(f"  Status: {batch.status}")
     print(f"  Total jobs: {batch.total_jobs}")
     print(f"  Webhook URL: {WEBHOOK_URL}")

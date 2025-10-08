@@ -296,6 +296,16 @@ async with AsyncSpatialiseSoilPrediction(
     batch = await client.batch.create(jobs=[...])
 ```
 
+## Advanced Guides
+
+For comprehensive documentation on specific advanced topics:
+
+- **[Webhook Integration](./docs/webhooks.md)** - HMAC signature verification, security best practices, and production deployment patterns for webhook handlers
+- **[Idempotency](./docs/idempotency.md)** - Preventing duplicate operations using idempotency keys with implementation patterns for retries and database-backed idempotency
+- **[Rate Limiting](./docs/rate-limiting.md)** - Understanding API rate limits, implementing exponential backoff, and request throttling strategies
+- **[Production Patterns](./docs/production-patterns.md)** - Secret management, database integration, async processing with Celery/SQS, logging, monitoring, and error recovery
+- **[GeoTIFF Processing](./docs/geotiff-processing.md)** - Downloading, processing, and visualizing soil prediction results using Rasterio
+
 ## Advanced Features
 
 ### Configuring Retries

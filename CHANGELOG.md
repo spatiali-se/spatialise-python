@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.2.0 (2025-10-30)
+
+Full Changelog: [v0.1.0-alpha.6...v0.2.0](https://github.com/spatiali-se/spatialise-python/compare/v0.1.0-alpha.6...v0.2.0)
+
+### Bug Fixes
+
+* **client:** close streams without requiring full consumption ([c86a620](https://github.com/spatiali-se/spatialise-python/commit/c86a620d6eeda61b9bf9215235b6af957281f1bf))
+* **doc:** adds readme in docs and ensure links are correct ([35f397e](https://github.com/spatiali-se/spatialise-python/commit/35f397ed3f8ca4219fc1ad3c3de6de680e448392))
+
+
+### Chores
+
+* bump `httpx-aiohttp` version to 0.1.9 ([5aabb70](https://github.com/spatiali-se/spatialise-python/commit/5aabb70c88c84229aa85e1e78715bc80bb1f5356))
+* **internal:** detect missing future annotations with ruff ([234e958](https://github.com/spatiali-se/spatialise-python/commit/234e958704b31c7273f0ef09454ce38478a68c19))
+
+
+### Documentation
+
+* add comprehensive advanced guides following scikit-learn style ([2ed7206](https://github.com/spatiali-se/spatialise-python/commit/2ed7206088667c1d3635a091150099f64e08e182))
+* add comprehensive Python code samples to OpenAPI spec ([c2527fd](https://github.com/spatiali-se/spatialise-python/commit/c2527fdfef9f6d3e410fd1ad4eb08fcaf4ce79a4))
+* add comprehensive webhook guide and remove emojis ([2223292](https://github.com/spatiali-se/spatialise-python/commit/22232927263b07a6d188e3ed1ff66e6108206551))
+* restructure README with Diátaxis-aligned task-oriented guides ([da490c7](https://github.com/spatiali-se/spatialise-python/commit/da490c784ed7b629319bd949fdef59f0c5ba54c7))
+
 ## 0.1.0-alpha.6 (2025-09-20)
 
 Full Changelog: [v0.1.0-alpha.5...v0.1.0-alpha.6](https://github.com/spatiali-se/spatialise-python/compare/v0.1.0-alpha.5...v0.1.0-alpha.6)

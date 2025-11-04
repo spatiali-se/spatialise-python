@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 (2025-11-04)
+
+Full Changelog: [v0.2.0...v0.2.1](https://github.com/spatiali-se/spatialise-python/compare/v0.2.0...v0.2.1)
+
+### Chores
+
+* **internal/tests:** avoid race condition with implicit client cleanup ([aae16e3](https://github.com/spatiali-se/spatialise-python/commit/aae16e3543e760f1e3bf1958e5676b1451505160))
+* **internal:** grammar fix (it's -&gt; its) ([94c00b5](https://github.com/spatiali-se/spatialise-python/commit/94c00b5506077289125781a6b7c2b842f1146a72))
+
 ## 0.2.0 (2025-10-30)
 
 Full Changelog: [v0.1.0-alpha.6...v0.2.0](https://github.com/spatiali-se/spatialise-python/compare/v0.1.0-alpha.6...v0.2.0)

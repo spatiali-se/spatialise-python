@@ -153,6 +153,7 @@ pip install spatialise[aiohttp]
 Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:
 
 ```python
+import os
 import asyncio
 from spatialise import DefaultAioHttpClient
 from spatialise import AsyncSpatialiseSoilPrediction
@@ -160,7 +161,7 @@ from spatialise import AsyncSpatialiseSoilPrediction
 
 async def main() -> None:
     async with AsyncSpatialiseSoilPrediction(
-        api_key="My API Key",
+        api_key=os.environ.get("SPATIALISE_API_KEY"),  # This is the default and can be omitted
         http_client=DefaultAioHttpClient(),
     ) as client:
         batch = await client.batch.create(

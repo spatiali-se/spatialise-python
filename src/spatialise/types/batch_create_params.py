@@ -28,6 +28,8 @@ class BatchCreateParams(TypedDict, total=False):
 
 
 class JobPolygon(TypedDict, total=False):
+    """GeoJSON polygon for the area"""
+
     coordinates: Required[Iterable[Iterable[Iterable[float]]]]
     """Array of linear rings, first is exterior, rest are holes"""
 
@@ -36,6 +38,8 @@ class JobPolygon(TypedDict, total=False):
 
 
 class Job(TypedDict, total=False):
+    """Individual prediction job within a batch - as sent by client."""
+
     polygon: Required[JobPolygon]
     """GeoJSON polygon for the area"""
 

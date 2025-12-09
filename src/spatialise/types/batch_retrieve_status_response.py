@@ -11,6 +11,8 @@ __all__ = ["BatchRetrieveStatusResponse", "Job"]
 
 
 class Job(BaseModel):
+    """Status information for a single job."""
+
     created_at: datetime
     """Job creation timestamp"""
 
@@ -37,6 +39,8 @@ class Job(BaseModel):
 
 
 class BatchRetrieveStatusResponse(BaseModel):
+    """Response for batch status query."""
+
     batch_id: str
     """Unique identifier for the batch"""
 

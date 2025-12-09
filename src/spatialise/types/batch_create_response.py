@@ -10,6 +10,8 @@ __all__ = ["BatchCreateResponse"]
 
 
 class BatchCreateResponse(BaseModel):
+    """Response after creating a batch."""
+
     batch_id: str
     """Unique identifier for the batch"""
 

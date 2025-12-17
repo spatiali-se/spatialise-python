@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
 from typing_extensions import Self, override
 
 import httpx
@@ -20,8 +20,8 @@ from ._types import (
     not_given,
 )
 from ._utils import is_given, get_async_library
+from ._compat import cached_property
 from ._version import __version__
-from .resources import batch, health
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import APIStatusError, SpatialiseSoilPredictionError
 from ._base_client import (
@@ -29,6 +29,11 @@ from ._base_client import (
     SyncAPIClient,
     AsyncAPIClient,
 )
+
+if TYPE_CHECKING:
+    from .resources import batch, health
+    from .resources.batch import BatchResource, AsyncBatchResource
+    from .resources.health import HealthResource, AsyncHealthResource
 
 __all__ = [
     "Timeout",
@@ -43,11 +48,6 @@ __all__ = [
 
 
 class SpatialiseSoilPrediction(SyncAPIClient):
-    health: health.HealthResource
-    batch: batch.BatchResource
-    with_raw_response: SpatialiseSoilPredictionWithRawResponse
-    with_streaming_response: SpatialiseSoilPredictionWithStreamedResponse
-
     # client options
     api_key: str
 
@@ -104,10 +104,25 @@ class SpatialiseSoilPrediction(SyncAPIClient):
 
         self._idempotency_header = "Idempotency-Key"
 
-        self.health = health.HealthResource(self)
-        self.batch = batch.BatchResource(self)
-        self.with_raw_response = SpatialiseSoilPredictionWithRawResponse(self)
-        self.with_streaming_response = SpatialiseSoilPredictionWithStreamedResponse(self)
+    @cached_property
+    def health(self) -> HealthResource:
+        from .resources.health import HealthResource
+
+        return HealthResource(self)
+
+    @cached_property
+    def batch(self) -> BatchResource:
+        from .resources.batch import BatchResource
+
+        return BatchResource(self)
+
+    @cached_property
+    def with_raw_response(self) -> SpatialiseSoilPredictionWithRawResponse:
+        return SpatialiseSoilPredictionWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> SpatialiseSoilPredictionWithStreamedResponse:
+        return SpatialiseSoilPredictionWithStreamedResponse(self)
 
     @property
     @override
@@ -215,11 +230,6 @@ class SpatialiseSoilPrediction(SyncAPIClient):
 
 
 class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
-    health: health.AsyncHealthResource
-    batch: batch.AsyncBatchResource
-    with_raw_response: AsyncSpatialiseSoilPredictionWithRawResponse
-    with_streaming_response: AsyncSpatialiseSoilPredictionWithStreamedResponse
-
     # client options
     api_key: str
 
@@ -276,10 +286,25 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
 
         self._idempotency_header = "Idempotency-Key"
 
-        self.health = health.AsyncHealthResource(self)
-        self.batch = batch.AsyncBatchResource(self)
-        self.with_raw_response = AsyncSpatialiseSoilPredictionWithRawResponse(self)
-        self.with_streaming_response = AsyncSpatialiseSoilPredictionWithStreamedResponse(self)
+    @cached_property
+    def health(self) -> AsyncHealthResource:
+        from .resources.health import AsyncHealthResource
+
+        return AsyncHealthResource(self)
+
+    @cached_property
+    def batch(self) -> AsyncBatchResource:
+        from .resources.batch import AsyncBatchResource
+
+        return AsyncBatchResource(self)
+
+    @cached_property
+    def with_raw_response(self) -> AsyncSpatialiseSoilPredictionWithRawResponse:
+        return AsyncSpatialiseSoilPredictionWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncSpatialiseSoilPredictionWithStreamedResponse:
+        return AsyncSpatialiseSoilPredictionWithStreamedResponse(self)
 
     @property
     @override
@@ -387,27 +412,79 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
 
 
 class SpatialiseSoilPredictionWithRawResponse:
+    _client: SpatialiseSoilPrediction
+
     def __init__(self, client: SpatialiseSoilPrediction) -> None:
-        self.health = health.HealthResourceWithRawResponse(client.health)
-        self.batch = batch.BatchResourceWithRawResponse(client.batch)
+        self._client = client
+
+    @cached_property
+    def health(self) -> health.HealthResourceWithRawResponse:
+        from .resources.health import HealthResourceWithRawResponse
+
+        return HealthResourceWithRawResponse(self._client.health)
+
+    @cached_property
+    def batch(self) -> batch.BatchResourceWithRawResponse:
+        from .resources.batch import BatchResourceWithRawResponse
+
+        return BatchResourceWithRawResponse(self._client.batch)
 
 
 class AsyncSpatialiseSoilPredictionWithRawResponse:
+    _client: AsyncSpatialiseSoilPrediction
+
     def __init__(self, client: AsyncSpatialiseSoilPrediction) -> None:
-        self.health = health.AsyncHealthResourceWithRawResponse(client.health)
-        self.batch = batch.AsyncBatchResourceWithRawResponse(client.batch)
+        self._client = client
+
+    @cached_property
+    def health(self) -> health.AsyncHealthResourceWithRawResponse:
+        from .resources.health import AsyncHealthResourceWithRawResponse
+
+        return AsyncHealthResourceWithRawResponse(self._client.health)
+
+    @cached_property
+    def batch(self) -> batch.AsyncBatchResourceWithRawResponse:
+        from .resources.batch import AsyncBatchResourceWithRawResponse
+
+        return AsyncBatchResourceWithRawResponse(self._client.batch)
 
 
 class SpatialiseSoilPredictionWithStreamedResponse:
+    _client: SpatialiseSoilPrediction
+
     def __init__(self, client: SpatialiseSoilPrediction) -> None:
-        self.health = health.HealthResourceWithStreamingResponse(client.health)
-        self.batch = batch.BatchResourceWithStreamingResponse(client.batch)
+        self._client = client
+
+    @cached_property
+    def health(self) -> health.HealthResourceWithStreamingResponse:
+        from .resources.health import HealthResourceWithStreamingResponse
+
+        return HealthResourceWithStreamingResponse(self._client.health)
+
+    @cached_property
+    def batch(self) -> batch.BatchResourceWithStreamingResponse:
+        from .resources.batch import BatchResourceWithStreamingResponse
+
+        return BatchResourceWithStreamingResponse(self._client.batch)
 
 
 class AsyncSpatialiseSoilPredictionWithStreamedResponse:
+    _client: AsyncSpatialiseSoilPrediction
+
     def __init__(self, client: AsyncSpatialiseSoilPrediction) -> None:
-        self.health = health.AsyncHealthResourceWithStreamingResponse(client.health)
-        self.batch = batch.AsyncBatchResourceWithStreamingResponse(client.batch)
+        self._client = client
+
+    @cached_property
+    def health(self) -> health.AsyncHealthResourceWithStreamingResponse:
+        from .resources.health import AsyncHealthResourceWithStreamingResponse
+
+        return AsyncHealthResourceWithStreamingResponse(self._client.health)
+
+    @cached_property
+    def batch(self) -> batch.AsyncBatchResourceWithStreamingResponse:
+        from .resources.batch import AsyncBatchResourceWithStreamingResponse
+
+        return AsyncBatchResourceWithStreamingResponse(self._client.batch)
 
 
 Client = SpatialiseSoilPrediction

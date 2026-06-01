@@ -34,13 +34,14 @@ $ pip install -r requirements-dev.lock
 
 ## Modifying/Adding code
 
-Most of the SDK is generated code. Modifications to code will be persisted between generations, but may
-result in merge conflicts between manual patches and changes from the generator. The generator will never
-modify the contents of the `src/spatialise/lib/` and `examples/` directories.
+This SDK is maintained by hand. Edit the files under `src/spatialise/` directly — there is no code
+generator, so your changes are the source of truth. After changing the public API, keep
+`openapi/openapi.yml` (used by the test mock server, see [Running tests](#running-tests)) and the tests
+under `tests/` in sync with your change.
 
 ## Adding and running examples
 
-All files in the `examples/` directory are not modified by the generator and can be freely edited or added to.
+All files in the `examples/` directory can be freely edited or added to.
 
 ```py
 # add an example to examples/<your-example>.py
@@ -85,15 +86,19 @@ $ pip install ./path-to-wheel-file.whl
 
 ## Running tests
 
-Most tests require you to [set up a mock server](https://github.com/stoplightio/prism) against the OpenAPI spec to run the tests.
-
-```sh
-# you will need npm installed
-$ npx prism mock path/to/your/openapi.yml
-```
+Most tests require a [Prism mock server](https://github.com/stoplightio/prism) running against the
+OpenAPI spec at `openapi/openapi.yml`. `./scripts/test` starts one for you (on `127.0.0.1:4010`) if it
+isn't already running:
 
 ```sh
 $ ./scripts/test
+```
+
+To run the mock server by hand against the local spec:
+
+```sh
+# you will need npm installed
+$ ./scripts/mock
 ```
 
 ## Linting and formatting

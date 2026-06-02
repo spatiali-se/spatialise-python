@@ -120,17 +120,23 @@ $ ./scripts/format
 
 ## Publishing and releases
 
-This SDK is hand-maintained — there is no release-please automation. Version bumps are **manual**: edit
-the version in `src/spatialise/_version.py` and `pyproject.toml`, then cut the release.
+This SDK is hand-maintained — there is no Stainless generator and no release-please
+automation (both were removed when the repo was taken in-house). Releases are cut by
+a maintainer, by hand:
 
-### Publish with a GitHub workflow
+1. Bump the version in **both** `src/spatialise/_version.py` and `pyproject.toml`.
+2. Add a `## <version>` section to `CHANGELOG.md` describing the change.
+3. Commit (`chore(release): <version>`) and merge to the default branch.
+4. Create a **GitHub Release** with tag `v<version>` (e.g. `v0.3.0`). Publishing
+   the Release triggers [the `Publish PyPI` workflow](https://www.github.com/spatiali-se/spatialise-python/actions/workflows/publish-pypi.yml)
+   (`.github/workflows/publish-pypi.yml`), which builds with Rye and runs
+   `bin/publish-pypi` using the `SPATIALISE_SOIL_PREDICTION_PYPI_TOKEN` /
+   `PYPI_TOKEN` secret. No regenerated OpenAPI spec or Stainless tooling is involved.
 
-Publishing a [GitHub Release](https://www.github.com/spatiali-se/spatialise-python/releases) triggers
-[the `Publish PyPI` workflow](https://www.github.com/spatiali-se/spatialise-python/actions/workflows/publish-pypi.yml),
-which builds with Rye and runs `bin/publish-pypi`. This requires an organization or repository PyPI token
-secret to be set up.
+The actual publish is a deliberate manual step — opening the GitHub Release is what
+ships the package; nothing publishes on a plain branch merge.
 
-### Publish manually
+### Publish manually (fallback)
 
-If you need to manually release a package, you can run the `bin/publish-pypi` script with a `PYPI_TOKEN` set on
-the environment.
+If the workflow can't be used, run `bin/publish-pypi` locally with `PYPI_TOKEN` set on
+the environment (after `rye build`).

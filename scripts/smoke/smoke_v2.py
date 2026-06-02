@@ -33,6 +33,10 @@ from __future__ import annotations
 import os
 import sys
 import time
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from spatialise.types.batch_create_params import Job
 
 # Polling knobs (operator's call — tune as needed).
 POLL_INTERVAL_SECONDS = 10
@@ -50,7 +54,7 @@ def _refuse(message: str) -> "NoReturn":  # type: ignore[name-defined]  # noqa: 
     raise SystemExit(2)
 
 
-def _build_canary_jobs() -> list:
+def _build_canary_jobs() -> "list[Job]":
     """The canary payload for batch.create.
 
     TODO (ask-first): confirm a no-op / no-billable-inference canary shape with the
@@ -59,9 +63,7 @@ def _build_canary_jobs() -> list:
     polygon and MUST be replaced with an agreed canary that incurs no real inference
     cost, or paired with the teardown step so no billable prod job lingers.
     """
-    raise NotImplementedError(
-        "Canary payload not yet defined — confirm a no-op/no-cost shape (SPA-1799 ask-first)."
-    )
+    raise NotImplementedError("Canary payload not yet defined — confirm a no-op/no-cost shape (SPA-1799 ask-first).")
 
 
 def main() -> None:
@@ -100,25 +102,24 @@ def main() -> None:
             for job in status.jobs:
                 if job.total_patch_batches:
                     done = job.completed_patch_batches or 0
-                    print(f"  job {job.job_id}: {done}/{job.total_patch_batches} patch-batches "
-                          f"({job.status})")
-            print(f"smoke_v2: batch status={status.status} "
-                  f"({status.completed_jobs}/{status.total_jobs} jobs done)")
+                    print(f"  job {job.job_id}: {done}/{job.total_patch_batches} patch-batches ({job.status})")
+            print(f"smoke_v2: batch status={status.status} ({status.completed_jobs}/{status.total_jobs} jobs done)")
 
             if status.status in TERMINAL_STATUSES:
                 final_status = status.status
                 break
             if time.monotonic() > deadline:
-                print(f"smoke_v2: TIMEOUT after {POLL_TIMEOUT_SECONDS}s "
-                      f"(last status={status.status})", file=sys.stderr)
+                print(f"smoke_v2: TIMEOUT after {POLL_TIMEOUT_SECONDS}s (last status={status.status})", file=sys.stderr)
                 raise SystemExit(1)
             time.sleep(POLL_INTERVAL_SECONDS)
     finally:
         # Teardown: never leave an orphaned prod job. There is no cancel endpoint in
         # the 0.3.0 contract, so the canary MUST be a documented no-op/no-cost payload
         # (see _build_canary_jobs TODO). Surface what was left behind for the operator.
-        print(f"smoke_v2: teardown — batch {batch_id} reached {final_status!r}. "
-              "Ensure the canary payload incurs no billable inference / leaves no orphan.")
+        print(
+            f"smoke_v2: teardown — batch {batch_id} reached {final_status!r}. "
+            "Ensure the canary payload incurs no billable inference / leaves no orphan."
+        )
 
     print(f"smoke_v2: DONE — terminal status {final_status!r}")
 

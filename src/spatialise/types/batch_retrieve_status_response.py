@@ -35,9 +35,11 @@ class Job(BaseModel):
     signed_cog_url_created_at: Optional[datetime] = None
     """UTC timestamp when the signed COG URL was generated"""
 
-    # NOTE: field names below are provisional. The backend (geo_batch_dispatcher;
-    # see SPA-1758, which models the entity as "PatchBatch") owns the wire shape —
-    # confirm these names against its status response before cutting 0.3.0.
+    # Field names match the backend's canonical names (the inference pipeline writes
+    # `total_patch_batches` / `completed_patch_batches` to Firestore; see SPA-1758).
+    # NOTE: as of writing, the batch-status API (geo_batch_dispatcher JobStatusInfo)
+    # does not yet serialize these counts, so they arrive as None until the backend
+    # adds them to its response model. Optional typing keeps the SDK forward-compatible.
     total_patch_batches: Optional[int] = None
     """Total number of patch-batches this job decomposes into.
 

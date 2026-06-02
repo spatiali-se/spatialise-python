@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from typing import Any, cast
+from datetime import datetime, timezone
 
 import pytest
 
@@ -279,8 +280,8 @@ class TestJobPatchBatchProgress:
         job = Job(
             job_id="job-mid",
             status="running",
-            created_at="2026-01-01T00:00:00Z",
-            updated_at="2026-01-01T00:05:00Z",
+            created_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 1, 1, 0, 5, 0, tzinfo=timezone.utc),
             total_patch_batches=8,
             completed_patch_batches=3,
         )
@@ -294,8 +295,8 @@ class TestJobPatchBatchProgress:
         job = Job(
             job_id="job-done",
             status="completed",
-            created_at="2026-01-01T00:00:00Z",
-            updated_at="2026-01-01T01:00:00Z",
+            created_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 1, 1, 1, 0, 0, tzinfo=timezone.utc),
             total_patch_batches=8,
             completed_patch_batches=8,
             signed_cog_url="https://example.com/cog.tif",
@@ -308,8 +309,8 @@ class TestJobPatchBatchProgress:
         job = Job(
             job_id="job-legacy",
             status="pending",
-            created_at="2026-01-01T00:00:00Z",
-            updated_at="2026-01-01T00:00:00Z",
+            created_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
         )
         assert job.total_patch_batches is None
         assert job.completed_patch_batches is None

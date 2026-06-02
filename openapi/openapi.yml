@@ -1020,6 +1020,18 @@ components:
             - type: "null"
           title: Signed Cog Url Created At
           description: UTC timestamp when the signed COG URL was generated
+        total_patch_batches:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Total Patch Batches
+          description: Total number of patch-batches this job decomposes into. Provisional field name - confirm against the backend (geo_batch_dispatcher / SPA-1758) before 0.3.0.
+        completed_patch_batches:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completed Patch Batches
+          description: Number of patch-batches completed so far for this job. Provisional field name - confirm against the backend (geo_batch_dispatcher / SPA-1758) before 0.3.0.
       type: object
       required:
         - job_id

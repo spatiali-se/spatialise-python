@@ -13,6 +13,7 @@ from spatialise.types import (
     BatchCreateResponse,
     BatchRetrieveStatusResponse,
 )
+from spatialise.types.batch_retrieve_status_response import Job
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -265,3 +266,50 @@ class TestAsyncBatch:
             await async_client.batch.with_raw_response.retrieve_status(
                 batch_id="",
             )
+
+
+class TestJobPatchBatchProgress:
+    """Model-level coverage for the additive per-job patch-batch progress fields.
+
+    These run without a Prism mock: they construct ``Job`` directly and assert the
+    new optional fields round-trip and stay backward compatible (default ``None``).
+    """
+
+    def test_job_mid_progress(self) -> None:
+        job = Job(
+            job_id="job-mid",
+            status="running",
+            created_at="2026-01-01T00:00:00Z",
+            updated_at="2026-01-01T00:05:00Z",
+            total_patch_batches=8,
+            completed_patch_batches=3,
+        )
+        assert job.total_patch_batches == 8
+        assert job.completed_patch_batches == 3
+        # existing fields keep their meaning
+        assert job.status == "running"
+        assert job.signed_cog_url is None
+
+    def test_job_fully_complete(self) -> None:
+        job = Job(
+            job_id="job-done",
+            status="completed",
+            created_at="2026-01-01T00:00:00Z",
+            updated_at="2026-01-01T01:00:00Z",
+            total_patch_batches=8,
+            completed_patch_batches=8,
+            signed_cog_url="https://example.com/cog.tif",
+        )
+        assert job.completed_patch_batches == job.total_patch_batches == 8
+        assert job.signed_cog_url == "https://example.com/cog.tif"
+
+    def test_job_patch_batch_fields_default_none(self) -> None:
+        # 0.2.x payloads omit the new fields entirely; they must default to None.
+        job = Job(
+            job_id="job-legacy",
+            status="pending",
+            created_at="2026-01-01T00:00:00Z",
+            updated_at="2026-01-01T00:00:00Z",
+        )
+        assert job.total_patch_batches is None
+        assert job.completed_patch_batches is None

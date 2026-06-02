@@ -580,6 +580,13 @@ def poll_batch_status_task(batch_id, interval=30, timeout=3600):
 
         status = client.batch.retrieve_status(batch_id)
 
+        # Per-job patch-batch progress: in the V2 pipeline each job is processed
+        # as several patch-batches, so you can show progress before its COG is ready.
+        for job in status.jobs:
+            if job.total_patch_batches:
+                done = job.completed_patch_batches or 0
+                print(f"  job {job.job_id}: {done}/{job.total_patch_batches} patch-batches")
+
         if status.status == 'completed':
             return {
                 'batch_id': status.batch_id,

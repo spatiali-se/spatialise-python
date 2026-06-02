@@ -35,6 +35,23 @@ class Job(BaseModel):
     signed_cog_url_created_at: Optional[datetime] = None
     """UTC timestamp when the signed COG URL was generated"""
 
+    # NOTE: field names below are provisional. The backend (geo_batch_dispatcher;
+    # see SPA-1758, which models the entity as "PatchBatch") owns the wire shape —
+    # confirm these names against its status response before cutting 0.3.0.
+    total_patch_batches: Optional[int] = None
+    """Total number of patch-batches this job decomposes into.
+
+    A job (1:1 with a COG) is processed as many patch-batches in the V2 pipeline.
+    None when the backend does not report patch-batch progress for this job.
+    """
+
+    completed_patch_batches: Optional[int] = None
+    """Number of patch-batches completed so far for this job.
+
+    Together with ``total_patch_batches`` this lets callers show progress before
+    the job's COG is ready. None when patch-batch progress is unavailable.
+    """
+
 
 class BatchRetrieveStatusResponse(BaseModel):
     batch_id: str

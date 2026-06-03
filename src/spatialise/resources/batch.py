@@ -274,10 +274,15 @@ class BatchResource(SyncAPIResource):
         """
         Retrieve the status of a single patch-batch within a job.
 
+        Each job is decomposed into multiple patch-batches during the V2 inference
+        pipeline; this returns the status of one of them by its index.
+
         Args:
           batch_id: The batch the job belongs to.
 
           job_id: The job the patch-batch belongs to.
+
+          patch_batch_idx: The zero-based patch-batch index within the job.
 
           extra_headers: Send extra headers
 
@@ -548,10 +553,15 @@ class AsyncBatchResource(AsyncAPIResource):
         """
         Retrieve the status of a single patch-batch within a job.
 
+        Each job is decomposed into multiple patch-batches during the V2 inference
+        pipeline; this returns the status of one of them by its index.
+
         Args:
           batch_id: The batch the job belongs to.
 
           job_id: The job the patch-batch belongs to.
+
+          patch_batch_idx: The zero-based patch-batch index within the job.
 
           extra_headers: Send extra headers
 

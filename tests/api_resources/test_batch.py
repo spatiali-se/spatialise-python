@@ -16,6 +16,7 @@ from spatialise.types import (
     JobDetailStatusResponse,
     BatchRetrieveStatusResponse,
 )
+from spatialise._models import construct_type
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -430,6 +431,62 @@ class TestBatchCountFieldAliases:
         assert (resp.total_jobs, resp.completed_jobs, resp.failed_jobs, resp.pending_jobs) == (5, 2, 0, 3)
         # wire-name properties resolve to the same values
         assert (resp.total_tasks, resp.completed_tasks, resp.failed_tasks, resp.pending_tasks) == (5, 2, 0, 3)
+
+
+class TestBatchStatusDeserialization:
+    """Exercise the SDK's real (non-validating) ``construct_type`` path used to
+    build API responses (via ``cast_to=``), not the validating constructor.
+
+    This is the path that catches a field rename / alias mismatch / dropped field,
+    so it deserializes a raw wire dict end to end.
+    """
+
+    def test_deserializes_wire_payload_with_task_counts_and_nested_job(self) -> None:
+        wire: dict[str, object] = {
+            "batch_id": "batch-1",
+            "status": "processing",
+            "total_tasks": 4,
+            "completed_tasks": 1,
+            "failed_tasks": 0,
+            "pending_tasks": 3,
+            "created_at": "2026-01-01T00:00:00Z",
+            "updated_at": "2026-01-01T00:05:00Z",
+            "has_more": False,
+            "next_cursor": None,
+            "jobs": [
+                {
+                    "job_id": "job-1",
+                    "status": "running",
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "updated_at": "2026-01-01T00:05:00Z",
+                    "signed_cog_url": None,
+                }
+            ],
+        }
+        resp = cast(BatchRetrieveStatusResponse, construct_type(value=wire, type_=BatchRetrieveStatusResponse))
+        # *_tasks wire keys land on the aliased *_jobs attributes (and *_tasks props)
+        assert resp.total_jobs == 4 and resp.total_tasks == 4
+        assert resp.completed_jobs == 1 and resp.pending_jobs == 3
+        # nested job deserializes through the same path
+        assert len(resp.jobs) == 1
+        assert resp.jobs[0].job_id == "job-1"
+        assert resp.jobs[0].status == "running"
+        assert resp.jobs[0].signed_cog_url is None
+
+    def test_deserializes_when_count_keys_absent(self) -> None:
+        # A payload missing the count keys must not raise during construction;
+        # the absent counts simply don't populate (the real path is non-validating).
+        wire: dict[str, object] = {
+            "batch_id": "batch-2",
+            "status": "created",
+            "created_at": "2026-01-01T00:00:00Z",
+            "updated_at": "2026-01-01T00:00:00Z",
+            "has_more": False,
+            "jobs": [],
+        }
+        resp = cast(BatchRetrieveStatusResponse, construct_type(value=wire, type_=BatchRetrieveStatusResponse))
+        assert resp.batch_id == "batch-2"
+        assert resp.jobs == []
 
 
 class TestJobDetailStatus:

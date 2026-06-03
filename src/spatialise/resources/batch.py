@@ -6,7 +6,7 @@ from typing import Dict, Iterable, Optional
 
 import httpx
 
-from ..types import batch_create_params, batch_retrieve_status_params
+from ..types import batch_create_params, job_retrieve_status_params, batch_retrieve_status_params
 from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import maybe_transform, strip_not_given, async_maybe_transform
 from .._compat import cached_property
@@ -19,6 +19,8 @@ from .._response import (
 )
 from .._base_client import make_request_options
 from ..types.batch_create_response import BatchCreateResponse
+from ..types.patch_batch_status_info import PatchBatchStatusInfo
+from ..types.job_detail_status_response import JobDetailStatusResponse
 from ..types.batch_retrieve_status_response import BatchRetrieveStatusResponse
 
 __all__ = ["BatchResource", "AsyncBatchResource"]
@@ -198,6 +200,105 @@ class BatchResource(SyncAPIResource):
             cast_to=BatchRetrieveStatusResponse,
         )
 
+    def retrieve_job_status(
+        self,
+        job_id: str,
+        *,
+        batch_id: str,
+        cursor: Optional[str] | Omit = omit,
+        limit: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> JobDetailStatusResponse:
+        """
+        Retrieve a single job's status, COG info, and patch-batch progress.
+
+        Returns the job's status and signed COG URL (when ready) along with its
+        fan-in counters (`total_patch_batches` / `completed_patch_batches`) and a
+        paginated list of per-patch-batch statuses.
+
+        **Pagination:** The `patch_batches` list is paginated (default 100 per page).
+        Pass the `cursor` from the previous response's `next_cursor` to fetch the next
+        page.
+
+        Args:
+          batch_id: The batch the job belongs to.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not batch_id:
+            raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
+        if not job_id:
+            raise ValueError(f"Expected a non-empty value for `job_id` but received {job_id!r}")
+        return self._get(
+            f"/v1/batch/{batch_id}/jobs/{job_id}/status",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "cursor": cursor,
+                        "limit": limit,
+                    },
+                    job_retrieve_status_params.JobRetrieveStatusParams,
+                ),
+            ),
+            cast_to=JobDetailStatusResponse,
+        )
+
+    def retrieve_patch_batch_status(
+        self,
+        patch_batch_idx: int,
+        *,
+        batch_id: str,
+        job_id: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> PatchBatchStatusInfo:
+        """
+        Retrieve the status of a single patch-batch within a job.
+
+        Args:
+          batch_id: The batch the job belongs to.
+
+          job_id: The job the patch-batch belongs to.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not batch_id:
+            raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
+        if not job_id:
+            raise ValueError(f"Expected a non-empty value for `job_id` but received {job_id!r}")
+        return self._get(
+            f"/v1/batch/{batch_id}/jobs/{job_id}/patches/{patch_batch_idx}/status",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=PatchBatchStatusInfo,
+        )
+
 
 class AsyncBatchResource(AsyncAPIResource):
     @cached_property
@@ -373,6 +474,105 @@ class AsyncBatchResource(AsyncAPIResource):
             cast_to=BatchRetrieveStatusResponse,
         )
 
+    async def retrieve_job_status(
+        self,
+        job_id: str,
+        *,
+        batch_id: str,
+        cursor: Optional[str] | Omit = omit,
+        limit: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> JobDetailStatusResponse:
+        """
+        Retrieve a single job's status, COG info, and patch-batch progress.
+
+        Returns the job's status and signed COG URL (when ready) along with its
+        fan-in counters (`total_patch_batches` / `completed_patch_batches`) and a
+        paginated list of per-patch-batch statuses.
+
+        **Pagination:** The `patch_batches` list is paginated (default 100 per page).
+        Pass the `cursor` from the previous response's `next_cursor` to fetch the next
+        page.
+
+        Args:
+          batch_id: The batch the job belongs to.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not batch_id:
+            raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
+        if not job_id:
+            raise ValueError(f"Expected a non-empty value for `job_id` but received {job_id!r}")
+        return await self._get(
+            f"/v1/batch/{batch_id}/jobs/{job_id}/status",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {
+                        "cursor": cursor,
+                        "limit": limit,
+                    },
+                    job_retrieve_status_params.JobRetrieveStatusParams,
+                ),
+            ),
+            cast_to=JobDetailStatusResponse,
+        )
+
+    async def retrieve_patch_batch_status(
+        self,
+        patch_batch_idx: int,
+        *,
+        batch_id: str,
+        job_id: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> PatchBatchStatusInfo:
+        """
+        Retrieve the status of a single patch-batch within a job.
+
+        Args:
+          batch_id: The batch the job belongs to.
+
+          job_id: The job the patch-batch belongs to.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not batch_id:
+            raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
+        if not job_id:
+            raise ValueError(f"Expected a non-empty value for `job_id` but received {job_id!r}")
+        return await self._get(
+            f"/v1/batch/{batch_id}/jobs/{job_id}/patches/{patch_batch_idx}/status",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=PatchBatchStatusInfo,
+        )
+
 
 class BatchResourceWithRawResponse:
     def __init__(self, batch: BatchResource) -> None:
@@ -383,6 +583,12 @@ class BatchResourceWithRawResponse:
         )
         self.retrieve_status = to_raw_response_wrapper(
             batch.retrieve_status,
+        )
+        self.retrieve_job_status = to_raw_response_wrapper(
+            batch.retrieve_job_status,
+        )
+        self.retrieve_patch_batch_status = to_raw_response_wrapper(
+            batch.retrieve_patch_batch_status,
         )
 
 
@@ -396,6 +602,12 @@ class AsyncBatchResourceWithRawResponse:
         self.retrieve_status = async_to_raw_response_wrapper(
             batch.retrieve_status,
         )
+        self.retrieve_job_status = async_to_raw_response_wrapper(
+            batch.retrieve_job_status,
+        )
+        self.retrieve_patch_batch_status = async_to_raw_response_wrapper(
+            batch.retrieve_patch_batch_status,
+        )
 
 
 class BatchResourceWithStreamingResponse:
@@ -408,6 +620,12 @@ class BatchResourceWithStreamingResponse:
         self.retrieve_status = to_streamed_response_wrapper(
             batch.retrieve_status,
         )
+        self.retrieve_job_status = to_streamed_response_wrapper(
+            batch.retrieve_job_status,
+        )
+        self.retrieve_patch_batch_status = to_streamed_response_wrapper(
+            batch.retrieve_patch_batch_status,
+        )
 
 
 class AsyncBatchResourceWithStreamingResponse:
@@ -419,4 +637,10 @@ class AsyncBatchResourceWithStreamingResponse:
         )
         self.retrieve_status = async_to_streamed_response_wrapper(
             batch.retrieve_status,
+        )
+        self.retrieve_job_status = async_to_streamed_response_wrapper(
+            batch.retrieve_job_status,
+        )
+        self.retrieve_patch_batch_status = async_to_streamed_response_wrapper(
+            batch.retrieve_patch_batch_status,
         )

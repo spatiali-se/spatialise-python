@@ -15,8 +15,9 @@ Intended flow (performed by a human operator, not in this repo's automation):
   2. Export the prod config (see "Required environment" below).
   3. python scripts/smoke/smoke_v2.py
      -> client.batch.create(<canary>) against the prod v2 base URL
-     -> poll retrieve_status(batch_id), printing patch-batch progress each poll
-        (job.completed_patch_batches / job.total_patch_batches, added in SPA-1797)
+     -> poll retrieve_status(batch_id); for each job, retrieve_job_status(...)
+        to print patch-batch progress (completed_patch_batches /
+        total_patch_batches, added in SPA-1797)
      -> on terminal status, tear the batch down so no prod job is orphaned.
 
 Required environment (the "ask first" items from the ticket — fill in before running):
@@ -98,11 +99,16 @@ def main() -> None:
     try:
         while True:
             status = client.batch.retrieve_status(batch_id)
-            # Per-job patch-batch progress (SPA-1797) — visible while the job runs.
+            # Per-job patch-batch progress (SPA-1797): the counts live on the
+            # job-detail endpoint, not on the batch-status Job, so fetch them per job.
             for job in status.jobs:
-                if job.total_patch_batches:
-                    done = job.completed_patch_batches or 0
-                    print(f"  job {job.job_id}: {done}/{job.total_patch_batches} patch-batches ({job.status})")
+                detail = client.batch.retrieve_job_status(job.job_id, batch_id=batch_id)
+                if detail.total_patch_batches:
+                    done = detail.completed_patch_batches or 0
+                    print(
+                        f"  job {job.job_id}: {done}/{detail.total_patch_batches} "
+                        f"patch-batches ({job.status})"
+                    )
             print(f"smoke_v2: batch status={status.status} ({status.completed_jobs}/{status.total_jobs} jobs done)")
 
             if status.status in TERMINAL_STATUSES:

@@ -120,12 +120,15 @@ $ ./scripts/format
 
 ## Publishing and releases
 
-Changes made to this repository via the automated release PR pipeline should publish to PyPI automatically. If
-the changes aren't made through the automated pipeline, you may want to make releases manually.
+This SDK is hand-maintained — there is no release-please automation. Version bumps are **manual**: edit
+the version in `src/spatialise/_version.py` and `pyproject.toml`, then cut the release.
 
 ### Publish with a GitHub workflow
 
-You can release to package managers by using [the `Publish PyPI` GitHub action](https://www.github.com/spatiali-se/spatialise-python/actions/workflows/publish-pypi.yml). This requires a setup organization or repository secret to be set up.
+Publishing a [GitHub Release](https://www.github.com/spatiali-se/spatialise-python/releases) triggers
+[the `Publish PyPI` workflow](https://www.github.com/spatiali-se/spatialise-python/actions/workflows/publish-pypi.yml),
+which builds with Rye and runs `bin/publish-pypi`. This requires an organization or repository PyPI token
+secret to be set up.
 
 ### Publish manually
 

@@ -3,6 +3,8 @@
 from typing import Dict
 from datetime import datetime
 
+from pydantic import Field
+
 from .._models import BaseModel
 from .batch_status import BatchStatus
 
@@ -25,5 +27,10 @@ class BatchCreateResponse(BaseModel):
     status: BatchStatus
     """Current status of the batch"""
 
-    total_jobs: int
-    """Total number of jobs in the batch"""
+    total_jobs: int = Field(alias="total_tasks")
+    """Total number of jobs in the batch (wire field: ``total_tasks``)."""
+
+    @property
+    def total_tasks(self) -> int:
+        """Wire-name alias for :attr:`total_jobs`."""
+        return self.total_jobs

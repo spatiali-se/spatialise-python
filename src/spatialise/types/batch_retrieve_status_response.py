@@ -4,6 +4,8 @@ from typing import List, Optional
 from datetime import datetime
 from typing_extensions import Literal
 
+from pydantic import Field
+
 from .._models import BaseModel
 from .batch_status import BatchStatus
 
@@ -35,38 +37,23 @@ class Job(BaseModel):
     signed_cog_url_created_at: Optional[datetime] = None
     """UTC timestamp when the signed COG URL was generated"""
 
-    # Field names match the backend's canonical names (the inference pipeline writes
-    # `total_patch_batches` / `completed_patch_batches` to Firestore; see SPA-1758).
-    # NOTE: as of writing, the batch-status API (geo_batch_dispatcher JobStatusInfo)
-    # does not yet serialize these counts, so they arrive as None until the backend
-    # adds them to its response model. Optional typing keeps the SDK forward-compatible.
-    total_patch_batches: Optional[int] = None
-    """Total number of patch-batches this job decomposes into.
-
-    A job (1:1 with a COG) is processed as many patch-batches in the V2 pipeline.
-    None when the backend does not report patch-batch progress for this job.
-    """
-
-    completed_patch_batches: Optional[int] = None
-    """Number of patch-batches completed so far for this job.
-
-    Together with ``total_patch_batches`` this lets callers show progress before
-    the job's COG is ready. None when patch-batch progress is unavailable.
-    """
-
 
 class BatchRetrieveStatusResponse(BaseModel):
     batch_id: str
     """Unique identifier for the batch"""
 
-    completed_jobs: int
-    """Number of completed jobs"""
+    # The API serializes these counts as ``*_tasks`` on the wire. They are exposed
+    # here under the historical ``*_jobs`` names (via alias) so existing callers keep
+    # working unchanged; each also has a ``*_tasks`` property that returns the same
+    # value for callers who prefer the wire name.
+    completed_jobs: int = Field(alias="completed_tasks")
+    """Number of completed jobs (wire field: ``completed_tasks``)."""
 
     created_at: datetime
     """Batch creation timestamp"""
 
-    failed_jobs: int
-    """Number of failed jobs"""
+    failed_jobs: int = Field(alias="failed_tasks")
+    """Number of failed jobs (wire field: ``failed_tasks``)."""
 
     has_more: bool
     """Whether there are more jobs to fetch"""
@@ -74,17 +61,37 @@ class BatchRetrieveStatusResponse(BaseModel):
     jobs: List[Job]
     """Status of individual jobs"""
 
-    pending_jobs: int
-    """Number of pending jobs"""
+    pending_jobs: int = Field(alias="pending_tasks")
+    """Number of pending jobs (wire field: ``pending_tasks``)."""
 
     status: BatchStatus
     """Current status of the batch"""
 
-    total_jobs: int
-    """Total number of jobs in the batch"""
+    total_jobs: int = Field(alias="total_tasks")
+    """Total number of jobs in the batch (wire field: ``total_tasks``)."""
 
     updated_at: datetime
     """Last update timestamp"""
 
     next_cursor: Optional[str] = None
     """Cursor for fetching the next page. Null if no more pages."""
+
+    @property
+    def total_tasks(self) -> int:
+        """Wire-name alias for :attr:`total_jobs`."""
+        return self.total_jobs
+
+    @property
+    def completed_tasks(self) -> int:
+        """Wire-name alias for :attr:`completed_jobs`."""
+        return self.completed_jobs
+
+    @property
+    def failed_tasks(self) -> int:
+        """Wire-name alias for :attr:`failed_jobs`."""
+        return self.failed_jobs
+
+    @property
+    def pending_tasks(self) -> int:
+        """Wire-name alias for :attr:`pending_jobs`."""
+        return self.pending_jobs

@@ -12,9 +12,10 @@ from spatialise import SpatialiseSoilPrediction, AsyncSpatialiseSoilPrediction
 from tests.utils import assert_matches_type
 from spatialise.types import (
     BatchCreateResponse,
+    PatchBatchStatusInfo,
+    JobDetailStatusResponse,
     BatchRetrieveStatusResponse,
 )
-from spatialise.types.batch_retrieve_status_response import Job
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -140,6 +141,68 @@ class TestBatch:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `batch_id` but received ''"):
             client.batch.with_raw_response.retrieve_status(
                 batch_id="",
+            )
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_retrieve_job_status(self, client: SpatialiseSoilPrediction) -> None:
+        batch = client.batch.retrieve_job_status(
+            job_id="job_id",
+            batch_id="batch_id",
+        )
+        assert_matches_type(JobDetailStatusResponse, batch, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_retrieve_job_status_with_all_params(self, client: SpatialiseSoilPrediction) -> None:
+        batch = client.batch.retrieve_job_status(
+            job_id="job_id",
+            batch_id="batch_id",
+            cursor="cursor",
+            limit=0,
+        )
+        assert_matches_type(JobDetailStatusResponse, batch, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_path_params_retrieve_job_status(self, client: SpatialiseSoilPrediction) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `batch_id` but received ''"):
+            client.batch.with_raw_response.retrieve_job_status(
+                job_id="job_id",
+                batch_id="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `job_id` but received ''"):
+            client.batch.with_raw_response.retrieve_job_status(
+                job_id="",
+                batch_id="batch_id",
+            )
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_retrieve_patch_batch_status(self, client: SpatialiseSoilPrediction) -> None:
+        batch = client.batch.retrieve_patch_batch_status(
+            patch_batch_idx=0,
+            batch_id="batch_id",
+            job_id="job_id",
+        )
+        assert_matches_type(PatchBatchStatusInfo, batch, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_path_params_retrieve_patch_batch_status(self, client: SpatialiseSoilPrediction) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `batch_id` but received ''"):
+            client.batch.with_raw_response.retrieve_patch_batch_status(
+                patch_batch_idx=0,
+                batch_id="",
+                job_id="job_id",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `job_id` but received ''"):
+            client.batch.with_raw_response.retrieve_patch_batch_status(
+                patch_batch_idx=0,
+                batch_id="batch_id",
+                job_id="",
             )
 
 
@@ -268,31 +331,146 @@ class TestAsyncBatch:
                 batch_id="",
             )
 
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_retrieve_job_status(self, async_client: AsyncSpatialiseSoilPrediction) -> None:
+        batch = await async_client.batch.retrieve_job_status(
+            job_id="job_id",
+            batch_id="batch_id",
+        )
+        assert_matches_type(JobDetailStatusResponse, batch, path=["response"])
 
-class TestJobPatchBatchProgress:
-    """Model-level coverage for the additive per-job patch-batch progress fields.
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_retrieve_job_status_with_all_params(
+        self, async_client: AsyncSpatialiseSoilPrediction
+    ) -> None:
+        batch = await async_client.batch.retrieve_job_status(
+            job_id="job_id",
+            batch_id="batch_id",
+            cursor="cursor",
+            limit=0,
+        )
+        assert_matches_type(JobDetailStatusResponse, batch, path=["response"])
 
-    These run without a Prism mock: they construct ``Job`` directly and assert the
-    new optional fields round-trip and stay backward compatible (default ``None``).
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_path_params_retrieve_job_status(self, async_client: AsyncSpatialiseSoilPrediction) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `batch_id` but received ''"):
+            await async_client.batch.with_raw_response.retrieve_job_status(
+                job_id="job_id",
+                batch_id="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `job_id` but received ''"):
+            await async_client.batch.with_raw_response.retrieve_job_status(
+                job_id="",
+                batch_id="batch_id",
+            )
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_retrieve_patch_batch_status(self, async_client: AsyncSpatialiseSoilPrediction) -> None:
+        batch = await async_client.batch.retrieve_patch_batch_status(
+            patch_batch_idx=0,
+            batch_id="batch_id",
+            job_id="job_id",
+        )
+        assert_matches_type(PatchBatchStatusInfo, batch, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_path_params_retrieve_patch_batch_status(self, async_client: AsyncSpatialiseSoilPrediction) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `batch_id` but received ''"):
+            await async_client.batch.with_raw_response.retrieve_patch_batch_status(
+                patch_batch_idx=0,
+                batch_id="",
+                job_id="job_id",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `job_id` but received ''"):
+            await async_client.batch.with_raw_response.retrieve_patch_batch_status(
+                patch_batch_idx=0,
+                batch_id="batch_id",
+                job_id="",
+            )
+
+
+class TestBatchCountFieldAliases:
+    """The API serializes counts as ``*_tasks``; the SDK exposes ``*_jobs`` (alias)
+    plus ``*_tasks`` properties. Both must resolve from a wire ``*_tasks`` payload.
     """
 
+    def test_create_response_total_tasks_alias(self) -> None:
+        resp = BatchCreateResponse.construct(
+            batch_id="b",
+            created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            job_ids={},
+            message="ok",
+            status="created",
+            total_tasks=3,
+        )
+        assert resp.total_jobs == 3
+        assert resp.total_tasks == 3
+
+    def test_status_response_count_aliases(self) -> None:
+        resp = BatchRetrieveStatusResponse.construct(
+            batch_id="b",
+            created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            status="processing",
+            jobs=[],
+            has_more=False,
+            total_tasks=5,
+            completed_tasks=2,
+            failed_tasks=0,
+            pending_tasks=3,
+        )
+        # historical *_jobs names keep working
+        assert (resp.total_jobs, resp.completed_jobs, resp.failed_jobs, resp.pending_jobs) == (5, 2, 0, 3)
+        # wire-name properties resolve to the same values
+        assert (resp.total_tasks, resp.completed_tasks, resp.failed_tasks, resp.pending_tasks) == (5, 2, 0, 3)
+
+
+class TestJobDetailStatus:
+    """Model-level coverage for the V2 job-detail / patch-batch status surface."""
+
     def test_job_mid_progress(self) -> None:
-        job = Job(
+        resp = JobDetailStatusResponse.construct(
             job_id="job-mid",
             status="running",
             created_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
             updated_at=datetime(2026, 1, 1, 0, 5, 0, tzinfo=timezone.utc),
             total_patch_batches=8,
             completed_patch_batches=3,
+            has_more=True,
+            next_cursor="cursor",
+            patch_batches=[
+                PatchBatchStatusInfo.construct(
+                    patch_batch_idx=0,
+                    status="completed",
+                    created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                    updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                    point_count=128,
+                    inference_duration_ms=4200,
+                ),
+                PatchBatchStatusInfo.construct(
+                    patch_batch_idx=1,
+                    status="running",
+                    created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                    updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                ),
+            ],
         )
-        assert job.total_patch_batches == 8
-        assert job.completed_patch_batches == 3
-        # existing fields keep their meaning
-        assert job.status == "running"
-        assert job.signed_cog_url is None
+        assert resp.completed_patch_batches == 3
+        assert resp.total_patch_batches == 8
+        assert len(resp.patch_batches) == 2
+        assert resp.patch_batches[0].patch_batch_idx == 0
+        assert resp.has_more is True
+        assert resp.next_cursor == "cursor"
 
     def test_job_fully_complete(self) -> None:
-        job = Job(
+        resp = JobDetailStatusResponse.construct(
             job_id="job-done",
             status="completed",
             created_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
@@ -300,17 +478,37 @@ class TestJobPatchBatchProgress:
             total_patch_batches=8,
             completed_patch_batches=8,
             signed_cog_url="https://example.com/cog.tif",
+            has_more=False,
+            patch_batches=[],
         )
-        assert job.completed_patch_batches == job.total_patch_batches == 8
-        assert job.signed_cog_url == "https://example.com/cog.tif"
+        assert resp.completed_patch_batches == resp.total_patch_batches == 8
+        assert resp.signed_cog_url == "https://example.com/cog.tif"
+        assert resp.has_more is False
 
-    def test_job_patch_batch_fields_default_none(self) -> None:
-        # 0.2.x payloads omit the new fields entirely; they must default to None.
-        job = Job(
-            job_id="job-legacy",
-            status="pending",
-            created_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-            updated_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+
+class TestPatchBatchStatus:
+    """Model-level coverage for a single patch-batch status."""
+
+    def test_running_patch_batch(self) -> None:
+        pb = PatchBatchStatusInfo.construct(
+            patch_batch_idx=2,
+            status="running",
+            created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            point_count=64,
         )
-        assert job.total_patch_batches is None
-        assert job.completed_patch_batches is None
+        assert pb.patch_batch_idx == 2
+        assert pb.status == "running"
+        assert pb.point_count == 64
+        assert pb.failure_reason is None
+
+    def test_failed_patch_batch(self) -> None:
+        pb = PatchBatchStatusInfo.construct(
+            patch_batch_idx=3,
+            status="failed",
+            created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            failure_reason="inference timeout",
+        )
+        assert pb.status == "failed"
+        assert pb.failure_reason == "inference timeout"

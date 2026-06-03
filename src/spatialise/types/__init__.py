@@ -6,5 +6,8 @@ from .batch_status import BatchStatus as BatchStatus
 from .batch_create_params import BatchCreateParams as BatchCreateParams
 from .batch_create_response import BatchCreateResponse as BatchCreateResponse
 from .health_check_response import HealthCheckResponse as HealthCheckResponse
+from .patch_batch_status_info import JobStatusLiteral as JobStatusLiteral, PatchBatchStatusInfo as PatchBatchStatusInfo
+from .job_detail_status_response import JobDetailStatusResponse as JobDetailStatusResponse
+from .job_retrieve_status_params import JobRetrieveStatusParams as JobRetrieveStatusParams
 from .batch_retrieve_status_params import BatchRetrieveStatusParams as BatchRetrieveStatusParams
 from .batch_retrieve_status_response import BatchRetrieveStatusResponse as BatchRetrieveStatusResponse

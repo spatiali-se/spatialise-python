@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Optional
-from typing_extensions import TypedDict
+from typing_extensions import TypeAlias
+
+from .cursor_pagination_params import CursorPaginationParams
 
 __all__ = ["JobRetrieveStatusParams"]
 
-
-class JobRetrieveStatusParams(TypedDict, total=False):
-    cursor: Optional[str]
-
-    limit: int
+# The job-detail endpoint paginates its patch_batches list with the same
+# cursor/limit scheme as the batch-status endpoint.
+JobRetrieveStatusParams: TypeAlias = CursorPaginationParams

@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Optional
-from typing_extensions import TypedDict
+from typing_extensions import TypeAlias
+
+from .cursor_pagination_params import CursorPaginationParams
 
 __all__ = ["BatchRetrieveStatusParams"]
 
-
-class BatchRetrieveStatusParams(TypedDict, total=False):
-    cursor: Optional[str]
-
-    limit: int
+# The batch-status endpoint paginates its jobs list with cursor/limit.
+BatchRetrieveStatusParams: TypeAlias = CursorPaginationParams

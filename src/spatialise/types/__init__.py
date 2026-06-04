@@ -7,6 +7,7 @@ from .batch_create_params import BatchCreateParams as BatchCreateParams
 from .batch_create_response import BatchCreateResponse as BatchCreateResponse
 from .health_check_response import HealthCheckResponse as HealthCheckResponse
 from .patch_batch_status_info import JobStatusLiteral as JobStatusLiteral, PatchBatchStatusInfo as PatchBatchStatusInfo
+from .cursor_pagination_params import CursorPaginationParams as CursorPaginationParams
 from .job_detail_status_response import JobDetailStatusResponse as JobDetailStatusResponse
 from .job_retrieve_status_params import JobRetrieveStatusParams as JobRetrieveStatusParams
 from .batch_retrieve_status_params import BatchRetrieveStatusParams as BatchRetrieveStatusParams

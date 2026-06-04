@@ -1,4 +1,4 @@
-# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+# This file is part of the spatialise SDK and is maintained by hand.
 
 from typing import List, Optional
 from datetime import datetime

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from typing import Any, Mapping
-from typing_extensions import Self, override
+from typing_extensions import Self, Literal, override
 
 import httpx
 
@@ -41,6 +41,31 @@ __all__ = [
     "AsyncClient",
 ]
 
+ApiVersion = Literal["v1", "v2"]
+
+# v1 and v2 are the same API served behind different load-balancer hosts; the
+# backend routes by the request host, not by any wire field (see the dispatcher's
+# `V2_DISPATCH_HOST`). So selecting a version is purely a base-URL choice.
+_VERSION_BASE_URLS: Mapping[ApiVersion, str] = {
+    "v1": "https://soilpredict.api.spatialise.dev/",
+    "v2": "https://soilpredict.v2.api.spatialise.dev/",
+}
+
+
+def _resolve_base_url(base_url: str | httpx.URL | None, version: ApiVersion) -> str | httpx.URL:
+    """Resolve the effective base URL.
+
+    Precedence: an explicit `base_url` arg wins, then the
+    `SPATIALISE_SOIL_PREDICTION_BASE_URL` env var, then the host for `version`
+    (default `"v1"`, preserving the historical default).
+    """
+    if base_url is not None:
+        return base_url
+    env_base_url = os.environ.get("SPATIALISE_SOIL_PREDICTION_BASE_URL")
+    if env_base_url is not None:
+        return env_base_url
+    return _VERSION_BASE_URLS[version]
+
 
 class SpatialiseSoilPrediction(SyncAPIClient):
     health: health.HealthResource
@@ -55,6 +80,7 @@ class SpatialiseSoilPrediction(SyncAPIClient):
         self,
         *,
         api_key: str | None = None,
+        version: ApiVersion = "v1",
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = not_given,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -77,6 +103,10 @@ class SpatialiseSoilPrediction(SyncAPIClient):
         """Construct a new synchronous SpatialiseSoilPrediction client instance.
 
         This automatically infers the `api_key` argument from the `SPATIALISE_API_KEY` environment variable if it is not provided.
+
+        `version` selects which API host to target (`"v1"` by default, or `"v2"`);
+        an explicit `base_url` (or the `SPATIALISE_SOIL_PREDICTION_BASE_URL` env var)
+        overrides it.
         """
         if api_key is None:
             api_key = os.environ.get("SPATIALISE_API_KEY")
@@ -86,10 +116,7 @@ class SpatialiseSoilPrediction(SyncAPIClient):
             )
         self.api_key = api_key
 
-        if base_url is None:
-            base_url = os.environ.get("SPATIALISE_SOIL_PREDICTION_BASE_URL")
-        if base_url is None:
-            base_url = f"https://soilpredict.api.spatialise.dev/"
+        base_url = _resolve_base_url(base_url, version)
 
         super().__init__(
             version=__version__,
@@ -227,6 +254,7 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
         self,
         *,
         api_key: str | None = None,
+        version: ApiVersion = "v1",
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = not_given,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -249,6 +277,10 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
         """Construct a new async AsyncSpatialiseSoilPrediction client instance.
 
         This automatically infers the `api_key` argument from the `SPATIALISE_API_KEY` environment variable if it is not provided.
+
+        `version` selects which API host to target (`"v1"` by default, or `"v2"`);
+        an explicit `base_url` (or the `SPATIALISE_SOIL_PREDICTION_BASE_URL` env var)
+        overrides it.
         """
         if api_key is None:
             api_key = os.environ.get("SPATIALISE_API_KEY")
@@ -258,10 +290,7 @@ class AsyncSpatialiseSoilPrediction(AsyncAPIClient):
             )
         self.api_key = api_key
 
-        if base_url is None:
-            base_url = os.environ.get("SPATIALISE_SOIL_PREDICTION_BASE_URL")
-        if base_url is None:
-            base_url = f"https://soilpredict.api.spatialise.dev/"
+        base_url = _resolve_base_url(base_url, version)
 
         super().__init__(
             version=__version__,

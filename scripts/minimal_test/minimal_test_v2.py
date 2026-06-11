@@ -34,7 +34,7 @@ Required environment (the "ask first" items from the ticket — fill in before r
 
 Gating: this test is only meaningful once 0.3.0 is published (SPA-1798) AND the v2
 host is live — i.e. the dispatcher has ``V2_DISPATCH_HOST`` (+ ``EE_GET_DATA_QUEUE_NAME``)
-set and the ``soilpredict.v2.api`` DNS record resolves to the LB. Do not treat a
+set and the ``soilpredict-v2.api`` DNS record resolves to the LB. Do not treat a
 failure as a client bug until both are in place.
 """
 

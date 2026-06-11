@@ -48,7 +48,7 @@ ApiVersion = Literal["v1", "v2"]
 # `V2_DISPATCH_HOST`). So selecting a version is purely a base-URL choice.
 _VERSION_BASE_URLS: Mapping[ApiVersion, str] = {
     "v1": "https://soilpredict.api.spatialise.dev/",
-    "v2": "https://soilpredict.v2.api.spatialise.dev/",
+    "v2": "https://soilpredict-v2.api.spatialise.dev/",
 }
 
 

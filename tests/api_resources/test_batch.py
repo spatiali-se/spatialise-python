@@ -160,7 +160,7 @@ class TestBatch:
             job_id="job_id",
             batch_id="batch_id",
             cursor="cursor",
-            limit=0,
+            limit=1,
         )
         assert_matches_type(JobDetailStatusResponse, batch, path=["response"])
 
@@ -350,7 +350,7 @@ class TestAsyncBatch:
             job_id="job_id",
             batch_id="batch_id",
             cursor="cursor",
-            limit=0,
+            limit=1,
         )
         assert_matches_type(JobDetailStatusResponse, batch, path=["response"])
 

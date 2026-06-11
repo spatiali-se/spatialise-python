@@ -226,7 +226,14 @@ class BatchResource(SyncAPIResource):
         page.
 
         Args:
+          job_id: The job to query.
+
           batch_id: The batch the job belongs to.
+
+          cursor: Pagination cursor from a previous response's `next_cursor`. Omit for the first
+              page.
+
+          limit: Maximum number of patch-batches to return per page (default: 100).
 
           extra_headers: Send extra headers
 
@@ -505,7 +512,14 @@ class AsyncBatchResource(AsyncAPIResource):
         page.
 
         Args:
+          job_id: The job to query.
+
           batch_id: The batch the job belongs to.
+
+          cursor: Pagination cursor from a previous response's `next_cursor`. Omit for the first
+              page.
+
+          limit: Maximum number of patch-batches to return per page (default: 100).
 
           extra_headers: Send extra headers
 

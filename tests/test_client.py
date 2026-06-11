@@ -44,6 +44,9 @@ from .utils import update_env
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 api_key = "My API Key"
 
+_V1_HOST = "https://soilpredict.api.spatialise.dev/"
+_V2_HOST = "https://soilpredict-v2.api.spatialise.dev/"
+
 
 def _get_params(client: BaseClient[Any, Any]) -> dict[str, str]:
     request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -187,7 +190,9 @@ class TestSpatialiseSoilPrediction:
             self.client.__init__,  # type: ignore[misc]
         )
         copy_signature = inspect.signature(self.client.copy)
-        exclude_params = {"transport", "proxies", "_strict_response_validation"}
+        # `version` is a construction-time host selector; once built, a client's
+        # base_url is concrete, so copy() round-trips base_url (not version).
+        exclude_params = {"transport", "proxies", "_strict_response_validation", "version"}
 
         for name in init_signature.parameters.keys():
             if name in exclude_params:
@@ -1068,7 +1073,9 @@ class TestAsyncSpatialiseSoilPrediction:
             self.client.__init__,  # type: ignore[misc]
         )
         copy_signature = inspect.signature(self.client.copy)
-        exclude_params = {"transport", "proxies", "_strict_response_validation"}
+        # `version` is a construction-time host selector; once built, a client's
+        # base_url is concrete, so copy() round-trips base_url (not version).
+        exclude_params = {"transport", "proxies", "_strict_response_validation", "version"}
 
         for name in init_signature.parameters.keys():
             if name in exclude_params:
@@ -1838,3 +1845,42 @@ class TestAsyncSpatialiseSoilPrediction:
 
         assert exc_info.value.response.status_code == 302
         assert exc_info.value.response.headers["Location"] == f"{base_url}/redirected"
+
+
+class TestVersionHostSelector:
+    """The `version=` arg selects the API host (v1/v2 routing is host-based)."""
+
+    def test_default_version_is_v1(self) -> None:
+        with update_env(**{"SPATIALISE_SOIL_PREDICTION_BASE_URL": Omit()}):
+            client = SpatialiseSoilPrediction(api_key=api_key, _strict_response_validation=True)
+            assert client.base_url == _V1_HOST
+
+    def test_version_v2_selects_v2_host(self) -> None:
+        with update_env(**{"SPATIALISE_SOIL_PREDICTION_BASE_URL": Omit()}):
+            client = SpatialiseSoilPrediction(version="v2", api_key=api_key, _strict_response_validation=True)
+            assert client.base_url == _V2_HOST
+
+    def test_explicit_base_url_wins_over_version(self) -> None:
+        with update_env(**{"SPATIALISE_SOIL_PREDICTION_BASE_URL": Omit()}):
+            client = SpatialiseSoilPrediction(
+                version="v2",
+                base_url="https://example.com/custom",
+                api_key=api_key,
+                _strict_response_validation=True,
+            )
+            assert client.base_url == "https://example.com/custom/"
+
+    def test_env_base_url_wins_over_version(self) -> None:
+        with update_env(SPATIALISE_SOIL_PREDICTION_BASE_URL="http://localhost:5000/from/env"):
+            client = SpatialiseSoilPrediction(version="v2", api_key=api_key, _strict_response_validation=True)
+            assert client.base_url == "http://localhost:5000/from/env/"
+
+    def test_async_default_version_is_v1(self) -> None:
+        with update_env(**{"SPATIALISE_SOIL_PREDICTION_BASE_URL": Omit()}):
+            client = AsyncSpatialiseSoilPrediction(api_key=api_key, _strict_response_validation=True)
+            assert client.base_url == _V1_HOST
+
+    def test_async_version_v2_selects_v2_host(self) -> None:
+        with update_env(**{"SPATIALISE_SOIL_PREDICTION_BASE_URL": Omit()}):
+            client = AsyncSpatialiseSoilPrediction(version="v2", api_key=api_key, _strict_response_validation=True)
+            assert client.base_url == _V2_HOST

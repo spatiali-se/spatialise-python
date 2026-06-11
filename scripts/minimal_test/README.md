@@ -47,5 +47,5 @@ waits for a terminal status, then reports teardown.
   it with a teardown that guarantees no orphaned/costly job.
 - **Gating** — only meaningful after `0.3.0` is published (SPA-1798) **and** the v2
   host is live: the dispatcher has `V2_DISPATCH_HOST` (+ `EE_GET_DATA_QUEUE_NAME`)
-  set and `soilpredict.v2.api` resolves to the LB. Until then, a failure is not a
+  set and `soilpredict-v2.api` resolves to the LB. Until then, a failure is not a
   client bug.

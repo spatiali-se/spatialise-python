@@ -88,6 +88,50 @@ for job in status.jobs:
         print(f"  FAILED Job {job.job_id}: {job.error_message}")
 ```
 
+Each count is also available under its wire name (`status.total_tasks`,
+`status.completed_tasks`, ...); the `*_jobs` names above are kept as aliases and
+return the same values.
+
+### Inspecting Per-Job Patch-Batch Progress (V2)
+
+On the V2 pipeline each job is processed as several **patch-batches**. The
+job-detail endpoint surfaces this fan-in so you can show fine-grained progress
+before a job's COG is ready:
+
+```python
+# Drill into a single job's patch-batch progress
+detail = client.batch.retrieve_job_status(job_id="job_xyz", batch_id="batch_abc123")
+
+if detail.total_patch_batches:
+    done = detail.completed_patch_batches or 0
+    print(f"Job {detail.job_id}: {done}/{detail.total_patch_batches} patch-batches")
+
+# Iterate the (paginated) per-patch-batch statuses
+for pb in detail.patch_batches:
+    print(f"  patch-batch {pb.patch_batch_idx}: {pb.status}")
+    if pb.status == "failed":
+        print(f"    failed: {pb.failure_reason}")
+
+# Fetch the next page of patch-batches when there are more
+if detail.has_more:
+    next_page = client.batch.retrieve_job_status(
+        job_id="job_xyz", batch_id="batch_abc123", cursor=detail.next_cursor
+    )
+```
+
+Inspect a single patch-batch directly by its index:
+
+```python
+pb = client.batch.retrieve_patch_batch_status(
+    patch_batch_idx=0, batch_id="batch_abc123", job_id="job_xyz"
+)
+print(f"patch-batch {pb.patch_batch_idx}: {pb.status}, {pb.point_count} points")
+```
+
+> These endpoints return useful data only when pointed at a V2 deployment. A
+> client targeting the v1 host (via `base_url`) keeps working unchanged and
+> simply does not call them.
+
 ### Polling Until Completion
 
 Poll for batch completion with proper timing and error handling:

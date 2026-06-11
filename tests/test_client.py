@@ -44,6 +44,9 @@ from .utils import update_env
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 api_key = "My API Key"
 
+_V1_HOST = "https://soilpredict.api.spatialise.dev/"
+_V2_HOST = "https://soilpredict-v2.api.spatialise.dev/"
+
 
 def _get_params(client: BaseClient[Any, Any]) -> dict[str, str]:
     request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1842,10 +1845,6 @@ class TestAsyncSpatialiseSoilPrediction:
 
         assert exc_info.value.response.status_code == 302
         assert exc_info.value.response.headers["Location"] == f"{base_url}/redirected"
-
-
-_V1_HOST = "https://soilpredict.api.spatialise.dev/"
-_V2_HOST = "https://soilpredict.v2.api.spatialise.dev/"
 
 
 class TestVersionHostSelector:

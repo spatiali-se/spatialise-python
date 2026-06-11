@@ -187,7 +187,9 @@ class TestSpatialiseSoilPrediction:
             self.client.__init__,  # type: ignore[misc]
         )
         copy_signature = inspect.signature(self.client.copy)
-        exclude_params = {"transport", "proxies", "_strict_response_validation"}
+        # `version` is a construction-time host selector; once built, a client's
+        # base_url is concrete, so copy() round-trips base_url (not version).
+        exclude_params = {"transport", "proxies", "_strict_response_validation", "version"}
 
         for name in init_signature.parameters.keys():
             if name in exclude_params:
@@ -1068,7 +1070,9 @@ class TestAsyncSpatialiseSoilPrediction:
             self.client.__init__,  # type: ignore[misc]
         )
         copy_signature = inspect.signature(self.client.copy)
-        exclude_params = {"transport", "proxies", "_strict_response_validation"}
+        # `version` is a construction-time host selector; once built, a client's
+        # base_url is concrete, so copy() round-trips base_url (not version).
+        exclude_params = {"transport", "proxies", "_strict_response_validation", "version"}
 
         for name in init_signature.parameters.keys():
             if name in exclude_params:

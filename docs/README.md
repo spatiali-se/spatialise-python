@@ -5,6 +5,10 @@
 
 The Spatialise Soil Prediction Python library provides convenient access to the Spatialise Soil Prediction REST API from any Python 3.8+ application. The library includes type definitions for all request params and response fields, and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
+> **New in v0.3.0:** target the V2 API with `version="v2"` and track per-job
+> progress with `retrieve_job_status` / `retrieve_patch_batch_status`. See
+> [What's new in v0.3.0](whats-new-v0.3.0.md) for the full list and migration notes.
+
 ## Installation
 
 ```sh
@@ -482,9 +486,9 @@ For type checking in VS Code, set `python.analysis.typeCheckingMode` to `basic`.
 
 For complete API documentation including all methods, parameters, and return types:
 
-- **[Full API Reference](api.md)** - Complete method signatures and parameter documentation
-- **[Example Scripts](./examples/)** - Working code examples for common workflows
-- **[Type Definitions](./src/spatialise/types/)** - Request and response type definitions
+- **[What's new in v0.3.0](whats-new-v0.3.0.md)** - V2 support, new methods, and migration notes
+- **[Example Scripts](https://github.com/spatiali-se/spatialise-python/tree/development/examples)** - Working code examples for common workflows
+- **[Type Definitions](https://github.com/spatiali-se/spatialise-python/tree/development/src/spatialise/types)** - Request and response type definitions
 
 ## Configuration
 
@@ -548,10 +552,10 @@ print(spatialise.__version__)
 
 ## Contributing
 
-See [the contributing documentation](./CONTRIBUTING.md).
+See [the contributing documentation](https://github.com/spatiali-se/spatialise-python/blob/development/CONTRIBUTING.md).
 
 ## Support
 
 - **Issues:** [GitHub Issues](https://www.github.com/spatiali-se/spatialise-python/issues)
-- **Documentation:** [Full API Reference](api.md)
+- **Documentation:** [What's new in v0.3.0](whats-new-v0.3.0.md)
 - **Examples:** [Example Scripts](https://github.com/spatiali-se/spatialise-python/tree/development/examples)

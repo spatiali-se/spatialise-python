@@ -1,0 +1,16 @@
+# GitBook Git Sync configuration.
+#
+# Makes the GitBook <-> repo sync explicit and reproducible: GitBook ingests the
+# hand-written guides under ./docs, using docs/README.md as the landing page and
+# docs/SUMMARY.md as the table of contents.
+#
+# NOTE: GitBook *version switching* (v0.2 <-> v0.3) is NOT configured here — it is
+# a space-level setting in the GitBook dashboard (Space Variants / Versions).
+# .gitbook.yaml only supports `root`, `structure`, and `redirects`. See the
+# "GitBook version switcher" section in docs/whats-new-v0.3.0.md / the SPA-1867
+# ticket for the dashboard steps.
+root: ./docs/
+
+structure:
+  readme: README.md
+  summary: SUMMARY.md
